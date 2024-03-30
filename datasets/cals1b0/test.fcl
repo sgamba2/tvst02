@@ -1,0 +1,101 @@
+BEGIN_PROLOG
+	INPUT_MODULE  @protect_ignore: RootInput        # choices: EmptyEvent / RootInput
+END_PROLOG
+#include "Offline/fcl/minimalMessageService.fcl"
+#include "Offline/fcl/standardProducers.fcl"
+#include "Offline/fcl/standardServices.fcl"
+#include "CalibStationVST/datasets/cals1b0/prolog.fcl"
+#include "CalibStationVST/datasets/cals1b0/prolog_Prod.fcl"
+
+#include "CalibStationVST/datasets/cals1b0/stntuple.fcl"
+
+process_name : cosmicslfit
+
+source : { module_type : RootInput }
+
+services : @local::Services.Reco
+MuHitDisplay: {
+
+	  visManager: {
+	      bField : 0
+
+	  }
+}
+
+
+physics :{
+     producers : { 
+        @table::Digitize.producers
+        @table::Reconstruction.producers
+	@table::CosmicTracking.producers
+
+
+    }
+
+    RecoPath : [ @sequence::Reconstruction.LineReco ] #@sequence::Reconstruction.TrkReco
+    filters   : { @table::Reconstruction.filters   }
+#------------------------------------------------------------------------------
+# muon reconstruction, both signs
+#------------------------------------------------------------------------------
+    @table::production.paths
+
+    trigger_paths : [  ] #RecoPath
+    
+    e1            : [ defaultOutput ]
+    end_paths     : [ e1            ]
+}
+
+services.GeometryService.bFieldFile: "Offline/Mu2eG4/geom/bfgeom_no_field.txt"
+
+
+# My epilog
+#include "Production/JobConfig/reco/epilog.fcl"
+outputs.Output.SelectEvents : [] # "RecoPath" 
+#
+# the following need to be overwritten for the specific channel
+services.TFileService.fileName: "nts.owner.RecoMCTrig.version.sequencer.root"
+
+
+services.scheduler.wantSummary: true
+
+services.ProditionsService.strawResponse.truncateLongitudinal : false
+services.ProditionsService.strawResponse.rmsLongErrors : false
+
+physics.producers.makePH.MaxDS : 1
+physics.producers.makePH.TestFlag : false
+
+physics.producers.SimpleTimeCluster.TestFlag : false
+physics.producers.SimpleTimeCluster.minNStrawHits : 10
+physics.producers.SimpleTimeCluster.maxNStrawHits : 100
+
+physics.producers.CosmicTrackFinderTimeFit.DoDrift : true
+physics.producers.CosmicTrackFinderTimeFit.UseTime : true
+physics.producers.CosmicTrackFinderTimeFit.UseChiFit : false
+physics.producers.CosmicTrackFinderTimeFit.UseLineFinder : true
+physics.producers.CosmicTrackFinderTimeFit.minNStrawHits : 2
+physics.producers.CosmicTrackFinderTimeFit.minNComboHits : 2
+physics.producers.CosmicTrackFinderTimeFit.minNHitsTimeCluster : 0
+outputs.defaultOutput.fileName        : "mcs.user.pbar1b0s51r0002.pbar2m.001210_00000000.art"
+
+
+#include "Production/Validation/database.fcl"
+
+#Reconstruction : {
+ 
+#  LineReco : [
+#    SimpleTimeClusterSara, LineFinderSara, KKLine
+#  ]
+
+# LineRecoPath : [
+#  @sequence::Reconstruction.CaloReco,
+#  @sequence::Reconstruction.TrkReco,
+#  @sequence::Reconstruction.CrvReco,
+#  @sequence::Reconstruction.LineReco
+#]
+#LineRecoMCPath : [
+#  @sequence::Reconstruction.LineRecoPath,
+#  @sequence::Reconstruction.MCReco,
+#  RecoFilter
+#]
+
+#}

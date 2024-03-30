@@ -1,0 +1,205 @@
+#
+# Prolog for digitizing detector steps.  These scripts can be run as-is, or in conjunction with mixing
+#
+#include "Offline/fcl/TrkCaloDt.fcl"
+#include "Offline/fcl/standardServices.fcl"
+#include "Offline/TrackerMC/fcl/prolog.fcl"
+#include "Offline/CaloMC/fcl/prolog.fcl"
+#include "Offline/CRVResponse/fcl/prolog.fcl"
+#include "Offline/Filters/fcl/prolog.fcl"
+#include "Offline/Compression/fcl/prolog.fcl"
+
+#
+BEGIN_PROLOG
+
+Digitize: {
+  producers : {
+    @table::CommonMC.producers
+    @table::TrackerMC.DigiProducers
+    @table::CaloMC.DigiProducers
+    @table::CrvDAQPackage.producers
+
+    compressDigiMCs : {
+      module_type : CompressDigiMCs
+      strawDigiMCTag : @local::DigiCompressionTags.commonStrawDigiMCTag
+      crvDigiMCTag : @local::DigiCompressionTags.commonCrvDigiMCTag
+      simParticleTags : [ @local::DigiCompressionTags.primarySimParticleTag ]
+      mcTrajectoryTag : @local::DigiCompressionTags.primarySimParticleTag
+      extraStepPointMCTags : @local::DigiCompressionTags.commonExtraStepPointMCTags
+      timeMapTags : [ ]
+      caloShowerStepTags : @local::DigiCompressionTags.primaryCaloShowerStepTags
+      caloShowerSimTag : @local::DigiCompressionTags.commonCaloShowerSimTag
+      caloShowerROTag : @local::DigiCompressionTags.commonCaloShowerROTag
+      primaryParticleTag : "FindMCPrimary"
+      keepAllGenParticles : true
+      rekeySimParticleCollection : true
+      noCompression : false
+
+      # Unused options
+      strawDigiMCIndexMapTag : ""
+      crvDigiMCIndexMapTag : ""
+      caloClusterMCTag : ""
+      crvCoincClusterMCTags : [ ]
+    }
+    PBISim : {
+      module_type: ProtonBunchIntensityFlat
+      mean : 1
+      halfWidth : 0
+    }
+  }
+
+  filters : {
+    # filter for Untriggered stream.  These should be events that might have
+    # triggered.  The default setting is a particle with enough tracker digis
+    # in the right momentum range to be reconstructable as a helix
+    # This filter should be overriden as needed for other kinds of primaries (straight cosmics, calo signals, ...)
+    #Triggerable : {
+    #  module_type : StrawDigiMCFilter
+    #  MinNDigis : 15
+    #  MinParticleMom : 50.0 # 80.0
+    #  MaxParticleMom : 200.0
+    #  StrawDigiMCCollection : compressDigiMCs
+    #  particleTypes : [ 11,-11, 13, -13, 211, -211, 130, 310, 311, 321] # e+-, mu+-, pi+-, K0, K+-
+    #}
+    CosmicFilter : {
+      module_type : CosmicStrawDigiMCFilter
+      minNDigis : 1
+
+      nHitStations : 1
+      StrawDigiMCCollection : compressDigiMCs
+      
+    }
+    # Untriggered stream prescaler; stream-dependent
+    UntriggeredPrescale : {
+      module_type : Prescaler
+      prescaleFactor : @nil
+      prescaleOffset : 0
+    }
+  }
+
+  analyzers: {
+    digiCompressionCheck : @local::DigiCompression.Check
+  }
+
+  DigitizeSequence : [
+    PBISim,
+    @sequence::CommonMC.DigiSim,
+    @sequence::TrackerMC.DigiSim,
+    @sequence::CaloMC.DigiSim,
+    @sequence::CrvDAQPackage.CrvDAQSequence,
+    compressDigiMCs ]
+
+  UntriggeredSequence : [ CosmicFilter]
+    # UntriggeredPrescale, CosmicFilter] # Triggerable ]
+
+  TriggerProducts : [
+    #"keep mu2e::TriggerInfo_*_*_*",
+    #"keep art::TriggerResults_*_*_*",
+    #"keep mu2e::KalSeeds_TT*_*_*",
+    #"keep mu2e::HelixSeeds_TT*_*_*",
+    #"keep mu2e::TimeClusters_TT*_*_*",
+    #"keep mu2e::CaloClusters_CaloClusterFast_*_*",
+    #"keep mu2e::ProtonBunchIntensity*_*_*_*"
+  ]
+  #
+  DigiProducts : [
+    "drop *_*_*_*",
+   "keep art::TriggerResults_TriggerResults_*_*",
+   "keep art::EventIDs_*_*_*",
+    "keep mu2e::StatusG4_g4run_*_*",
+    "keep mu2e::GenParticles_compressDetStepMCs_*_*",
+    "keep mu2e::CaloShowerSteps_compressDetStepMCs_*_*",
+    "keep mu2e::StrawGasSteps_compressDetStepMCs_*_*",
+    "keep mu2e::SimParticleart::Ptrmu2e::MCTrajectorystd::map_compressDetStepMCs_*_*",
+    "keep mu2e::SimParticlemv_compressDetStepMCs_*_*",
+    "keep mu2e::StepPointMCs_compressDetStepMCs_*_*",
+    "keep mu2e::CrvSteps_compressDetStepMCs_*_*",
+    "keep mu2e::PrimaryParticle_FindMCPrimary_*_*",
+    "keep mu2e::GenEventCount_genCounter_*_*",
+    "keep art::EventIDs_TargetStopResampler_*_*"
+    #"keep mu2e::StrawDigis_*_*_*",
+    #"keep mu2e::StrawDigiADCWaveforms_*_*_*",
+    #"keep mu2e::CaloDigis_*_*_*",
+    #"keep mu2e::CrvDigis_*_*_*",
+    #"keep mu2e::StatusG4_*_*_*",
+    #"keep *_genCounter_*_*",
+    #"keep mu2e::EventWindowMarker_*_*_*",
+    #"keep mu2e::ProtonBunchTimeMC_*_*_*",
+    #"keep mu2e::ProtonBunchTime_*_*_*",
+    #"keep mu2e::EventWeight_*_*_*",
+    #"keep *_compressDigiMCs_*_*",
+    #"keep mu2e::TriggerInfo_*_*_*",
+    #"keep art::TriggerResults_*_*_*",
+    #"keep mu2e::KalSeeds_TT*_*_*",
+    #"keep mu2e::HelixSeeds_TT*_*_*",
+    #"keep mu2e::TimeClusters_TT*_*_*",
+    #"keep mu2e::CaloClusters_CaloClusterFast_*_*",
+    #"keep mu2e::CosmicLivetime_*_*_*",
+    #"keep mu2e::ProtonBunchIntensity*_*_*_*"
+  ]
+  #
+  # different streams for different end uses:  Signal is for physics studies, background studies, and calibration and alignment
+  # Untriggered is for trigger algorithm improvement
+  # Trk and Calo are for calibration and alignment
+  #
+  # Stream for events passing any 'physics signal' trigger; at the moment, just high-momentum tracks
+  SignalOutput : {
+    module_type : RootOutput
+    SelectEvents : ["UntriggeredPath"] # [ "*_highP_*_trigger" ]
+    fileName    : @nil
+  }
+  # Stream for diagnostic events; random and (prescaled) signal precursors
+  DiagOutput : {
+    module_type : RootOutput
+    SelectEvents : [ "minBias_*_trigger" , "*Helix*M_trigger", "*Helix*P_trigger"]
+    fileName    : @nil
+  }
+  # Stream for events useful for tracker calibration and alignment
+  TrkOutput : {
+    module_type : RootOutput
+    SelectEvents : [ "*_lowP_*_trigger","*_ipa_*_trigger", "cst*_trigger" ]
+    fileName    : @nil
+  }
+  # Stream for events useful for calorimeter calibration
+  CaloOutput : {
+    module_type : RootOutput
+    SelectEvents : [ "calo*_trigger" ] # selects events passing calorimeter calibration trigger
+    fileName    : @nil
+  }
+  # Stream for MC only: Stream for events which 'should have' triggered, but didnt, useful for studying trigger efficiency
+  UntriggeredOutput : {
+    module_type : RootOutput
+    RejectEvents : [ "*_trigger" ] # reject events passing any trigger
+    SelectEvents : [ "UntriggeredPath" ] # require events pass 'Triggerable' filter
+    fileName    : @nil
+  }
+
+  EndSequence : [ ] # digiCompressionCheck]
+}
+# override the Trigger sequence to prepare digis
+#Trigger.PrepareDigis: [ @sequence::CommonMC.DigiSim, @sequence::TrackerMC.DigiSim, @sequence::CaloMC.DigiSim ]
+Digitize.SignalOutput.outputCommands : [ "drop *_*_*_*",
+  @sequence::Digitize.DigiProducts]
+
+Digitize.DiagOutput.outputCommands : [ "drop *_*_*_*",
+  @sequence::Digitize.DigiProducts]
+
+Digitize.TrkOutput.outputCommands : [ "drop *_*_*_*",
+  @sequence::Digitize.DigiProducts]
+
+Digitize.CaloOutput.outputCommands : [ "drop *_*_*_*",
+  @sequence::Digitize.DigiProducts]
+
+Digitize.UntriggeredOutput.outputCommands : [ "drop *_*_*_*",
+   "keep mu2e::CrvRecoPulses_*_*_*",
+  @sequence::Digitize.DigiProducts]
+
+Digitize.Outputs : {
+  SignalOutput : @local::Digitize.SignalOutput
+  DiagOutput : @local::Digitize.DiagOutput
+  TrkOutput : @local::Digitize.TrkOutput
+  CaloOutput : @local::Digitize.CaloOutput
+  UntriggeredOutput : @local::Digitize.UntriggeredOutput
+}
+
+END_PROLOG

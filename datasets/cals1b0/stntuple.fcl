@@ -1,0 +1,277 @@
+# -*- mode:tcl -*-
+#------------------------------------------------------------------------------
+# STNTUPLE maker user FCL template - see read_reco.fcl
+# p1 : generate, simulate, reconstruct, stntuple
+# p2 : read, reconstruct, stntuple
+# p3 : old reco path: TPR and CPR reconstruction paths fully separated
+# p4 : read, filter, reconstruct, display
+# p5 : read, filter, reconstruct
+# p6 : read, filter, display
+#
+# variables defined in the following PROLOG can be redefined in the top-level
+# job configuration file using "@protect_ignore:" FCL construct
+#
+# GEN_ID needs to be redefined once again in the job top-level FCL file, as it 
+#        is set to "CeEndpoint" in EventGenerator/fcl/prolog.fcl
+#------------------------------------------------------------------------------
+BEGIN_PROLOG
+  bgHitFiles          : @nil
+  INPUT_MODULE        : EmptyEvent
+  TRIGGER_PATHS       : []
+  END_PATHS           : []
+  PROCESS_NAME        : nil
+  BLIND_TIME          : 500                                  # default
+  STN_COMPRESS_MCS    : "compressDigiMCs"                    # "compressRecoMCs" looks dangerous
+  STN_VDHITS_COLL_TAG : "compressDigiMCs:virtualdetector"
+  PDG_ID              : 0                                    # 0: ignore PDG_ID
+  GEN_ID              : "particleGun"                        #    ignore GEN_ID check
+END_PROLOG
+#------------------------------------------------------------------------------
+#include "Offline/fcl/standardServices.fcl"
+#include "Offline/fcl/TrkCaloDt.fcl"
+#------------------------------------------------------------------------------
+# simulation prologs
+#------------------------------------------------------------------------------
+#include "Offline/EventGenerator/fcl/prolog.fcl"
+#include "Offline/Mu2eG4/fcl/prolog.fcl"
+#include "Offline/CommonMC/fcl/prolog.fcl"
+#include "Offline/TrackerMC/fcl/prolog.fcl"
+#include "Offline/CaloMC/fcl/prolog.fcl"
+#include "Offline/CRVResponse/fcl/prolog.fcl"
+#include "Offline/EventMixing/fcl/prolog.fcl"
+#include "Offline/Filters/fcl/prolog.fcl"
+#include "Offline/Compression/fcl/prolog.fcl"
+#------------------------------------------------------------------------------
+# reconstruction prologs
+#------------------------------------------------------------------------------
+#include "Offline/Mu2eKinKal/fcl/prolog.fcl"
+#include "Offline/TrkDiag/fcl/prolog.fcl"
+#include "Offline/TrkHitReco/fcl/prolog.fcl"
+#include "Offline/TrkReco/fcl/prolog.fcl"
+#include "Offline/TrkPatRec/fcl/prolog.fcl"
+#include "Offline/CaloReco/fcl/prolog.fcl"
+#include "Offline/CaloCluster/fcl/prolog.fcl"
+#include "Offline/CalPatRec/fcl/prolog.fcl"
+#include "Offline/CalPatRec/fcl/prolog_common.fcl"
+#include "CalibStationVST/datasets/cals1b0/prolog.fcl"
+#------------------------------------------------------------------------------
+# trigger prologs
+#------------------------------------------------------------------------------
+##  #include "Offline/Trigger/fcl/prolog_trigger.fcl"
+# #include "mu2e_trig_config/core/trigProducers.fcl"
+# #include "mu2e_trig_config/core/trigFilters.fcl"
+# #include "mu2e_trig_config/core/trigMCProductionSequences.fcl"
+# #include "mu2e_trig_config/core/trigSequences.fcl"
+
+#include "Stntuple/fcl/prolog.fcl"
+#include "pbar2m/fcl/prolog.fcl"
+#------------------------------------------------------------------------------
+# templates: do not include prologs, 
+# define table and sequence templates combining information from multiples packages
+#
+# services are initialized in Stntuple/fcl/stntuple_templates.fcl
+# (1): services section (Services.SimAndReco and Services.Sim today are the same)
+#       add time tracker template
+#
+# include-less clones on Production fcls with all templates
+#------------------------------------------------------------------------------
+#include "Stntuple/fcl/production_jobconfig_common_prolog.fcl" 
+#include "Stntuple/fcl/production_jobconfig_digitize_prolog.fcl" 
+#include "Stntuple/fcl/production_jobconfig_primary_prolog.fcl"
+#include "CalibStationVST/datasets/cals1b0/production_jobconfig_reco_prolog.fcl"   
+# \\ #include "Stntuple/fcl/stntuple_templates.fcl"
+#------------------------------------------------------------------------------
+services : { @table::Services.SimAndReco
+    TimeTracker : {
+	printSummary : true
+	dbOutput : {
+	    filename  : ""
+	    overwrite : false
+	}
+    }
+   message: @local::default_message
+} 
+
+services.SeedService.baseSeed         : 8
+services.SeedService.maxUniqueEngines : 100
+services.scheduler.wantSummary        : true
+services.TFileService.fileName        : "nts._user_._dataset_._dsconf_._sequencer_.root" 
+
+# Limit the amount of "Begin processing the ... record" messages
+services.message.destinations.log.categories.ArtReport.reportEvery : 1
+services.message.destinations.log.categories.ArtReport.limit       : 10000
+services.message.destinations.log.categories.ArtReport.timespan    : 300
+services.message.destinations.log.outputStatistics                 : true
+# services.DbService : @local::DbEmpty
+#------------------------------------------------------------------------------
+# here come templates
+#------------------------------------------------------------------------------
+# include "Stntuple/fcl/trigger_templates.fcl"
+#include "Stntuple/fcl/production_templates.fcl"
+#include "Stntuple/fcl/stntuple_templates.fcl"
+#------------------------------------------------------------------------------
+# end templates
+# (1): definition of the input module - can redefine in the top-level prolog
+#------------------------------------------------------------------------------
+MuHitDisplay: {
+
+	  visManager: {
+	      bField : 0
+
+	  }
+}
+
+source : { module_type : @local::INPUT_MODULE
+    # reportFrequency : 1
+    #    fileNames : ["/mu2e/data/tdr/beam/g4s4p5/tdr.beam.g4s4.conversion.1504a.15729672/good/00000/dsStopsToHitsConversion.root"]
+    #    maxEvents   : -1
+}
+#------------------------------------------------------------------------------
+# (2): definition of the output module
+#------------------------------------------------------------------------------
+outputs: {
+    defaultOutput      : { module_type : RootOutput
+	SelectEvents   : [ @sequence::TRIGGER_PATHS ]
+	outputCommands : [ "keep *_*_*_*" ]
+    }
+    #    FullOutput : { @table::Mixing.Output  outputCommands : [ "keep *_*_*_*"                  ] }
+    #    DetOutput  : { @table::Mixing.Output  outputCommands : [ @sequence::production.mixing_output ] }
+    SignalOutput      : { @table::Digitize.SignalOutput      }
+    CaloOutput        : { @table::Digitize.CaloOutput        }
+    TrkOutput         : { @table::Digitize.TrkOutput         }
+    DiagOutput        : { @table::Digitize.DiagOutput        }
+    UntriggeredOutput : { @table::Digitize.UntriggeredOutput }
+}
+#------------------------------------------------------------------------------
+# lower case 'stntuple' is for inclusion
+#------------------------------------------------------------------------------
+stntuple : {
+    producers: { 
+	@table::EventGenerator.producers
+	@table::Common.producers
+	@table::Primary.producers
+	@table::Digitize.producers
+	@table::Reconstruction.producers
+	@table::Stntuple.producers 
+	#@table::TrigProducers.producers 
+	# 
+	compressDigiMCs : { @table::Digitize.producers.compressDigiMCs       # defined in Filters/fcl/
+	    crvDigiMCTag         : ""
+	}
+    }
+
+    filters  : { 
+	@table::Common.filters
+	@table::Primary.filters
+        @table::Digitize.filters
+	@table::Reconstruction.filters
+	@table::Stntuple.filters   
+	#@table::TrigFilters.filters
+    }
+
+    analyzers: { 
+	@table::Common.analyzers
+	@table::Digitize.analyzers
+	@table::Reconstruction.analyzers
+	@table::Stntuple.analyzers 
+    }
+#------------------------------------------------------------------------------
+# add trigger paths 
+#------------------------------------------------------------------------------
+    paths : { @table::Stntuple.paths }
+#------------------------------------------------------------------------------
+# final part - make sure 'trigger_paths' is aleways defined
+# 'end_paths' defined in the top-level job configuration FCL's 
+#------------------------------------------------------------------------------
+    trigger_paths : [ @sequence::TRIGGER_PATHS ]
+}
+#------------------------------------------------------------------------------
+# output event formats for different jobs
+# 1. event format for mixing input
+#------------------------------------------------------------------------------
+# Beam.SimKeptProducts
+#    "keep art::EventIDs_*_*_*",
+#    "keep mu2e::GenParticles_*_*_*",
+#    "keep mu2e::GenEventCount_*_*_*",
+#    "keep mu2e::StatusG4_*_*_*"
+#
+# Digitize.TriggerProducts
+#    "keep mu2e::KalSeeds_TT*_*_*",
+#    "keep mu2e::HelixSeeds_TT*_*_*",
+#    "keep mu2e::TimeClusters_TT*_*_*",
+#    "keep mu2e::CaloClusters_CaloClusterFast_*_*",
+#
+# Digitize.DigiProducts
+# Primary.KeptProducts
+#
+output_products : {
+    gen_sim       : [ "drop    *_*_*_*"                                 ,
+		      "keep    art::EventIDs_*_*_*"                     ,
+		      "keep    mu2e::EventWeight_*_*_*"                 ,
+		      "keep    mu2e::EventWindowMarker_EWMProducer_*_*" ,
+		      "keep    mu2e::FixedTimeMap_*_*_*"                ,
+		      "keep    mu2e::GenEventCount_*_*_*"               ,
+		      "keep    mu2e::GenParticles_*_*_*"                ,
+		      "keep    *_g4run_*_*"                             ,
+		      "drop    mu2e::StepPointMCs_g4run_calorimeter_*"  ,
+		      "drop    mu2e::StepPointMCs_g4run_calorimeterRO_*",
+		      "keep    mu2e::CaloShowerSteps_*_*_*"
+		     ]
+#------------------------------------------------------------------------------
+# 2. output format for digi files, no trigger
+#------------------------------------------------------------------------------
+    gen_sim_digi  : [ "drop    *_*_*_*"                                ,
+		      "keep    *_compressDigiMCs_*_*"                  ,
+		      "keep    mu2e::GenEventCount_*_*_*"              ,
+		      "keep    mu2e::GenParticles_generate_photon_*"   ,
+		      "keep    mu2e::StatusG4_g4run_*_*"               ,
+		      "keep    mu2e::EventWeight_*_*_*"                ,
+		      "keep    mu2e::EventWindowMarker_EWMProducer_*_*",
+		      "keep    mu2e::FixedTimeMap_*_*_*"               ,
+		      "keep    mu2e::CaloDigis_*CaloDigiFromShower_*_*",
+		      "keep    mu2e::CrvDigis_CrvDigi_*_*"             ,
+		      "keep    mu2e::ProtonBunchIntensity_*_*_*"       ,
+		      "keep    mu2e::StrawDigis_makeSD_*_*"            
+		     ]
+#------------------------------------------------------------------------------
+# 2. output format for digi files, w/trigger
+#------------------------------------------------------------------------------
+    gen_sim_digi_trig  : [ "drop    *_*_*_*"                                ,
+			   "keep    *_compressDigiMCs_*_*"                  ,
+			   "keep    mu2e::GenEventCount_*_*_*"              ,
+			   "keep    mu2e::GenParticles_generate_photon_*"   ,
+			   "keep    mu2e::StatusG4_g4run_*_*"               ,
+			   "keep    mu2e::EventWeight_*_*_*"                ,
+			   "keep    mu2e::EventWindowMarker_EWMProducer_*_*",
+			   "keep    mu2e::FixedTimeMap_*_*_*"               ,
+			   "keep    mu2e::CaloDigis_CaloDigiFromShower_*_*" ,
+			   "keep    mu2e::CrvDigis_CrvDigi_*_*"             ,
+			   "keep    mu2e::ProtonBunchIntensity_*_*_*"       ,
+			   "keep    mu2e::StrawDigis_makeSD_*_*"            ,
+			   
+			   "keep    mu2e::TriggerInfo_*_*_*"                ,
+			   "keep    art::TriggerResults_*_*_*"              ,
+			   "keep    mu2e::KalSeeds_TT*_*_*"                 ,
+			   "keep    mu2e::HelixSeeds_TT*_*_*"               ,
+			   "keep    mu2e::TimeClusters_TT*_*_*"             ,
+			   "keep    mu2e::CaloClusters_CaloClusterFast_*_*"
+			  ]
+
+    reco :                [
+			  ]
+}
+#------------------------------------------------------------------------------
+# 2024-03-06 : reflect temporary change in the DB usage policy in offline 
+#------------------------------------------------------------------------------
+services.DbService.purpose: MDC2020_perfect
+services.DbService.version: v1_1
+services.GeometryService.bFieldFile: "Offline/Mu2eG4/geom/bfgeom_no_field.txt"
+
+#------------------------------------------------------------------------------
+# output file names 
+#------------------------------------------------------------------------------
+services.TFileService.fileName            : "nts.user.stntuple.xxx.000000_00000000.root"
+outputs.defaultOutput.fileName            : "sim.user.stntuple.xxx.000000_00000000.art"
+#------------------------------------------------------------------------------
+# this is it
+#------------------------------------------------------------------------------

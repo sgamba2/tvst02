@@ -1,0 +1,7 @@
+#include "Production/JobConfig/cosmic/NoField.fcl"
+
+source.module_type: EmptyEvent
+physics.producers.generate : @local::Cosmic.generateCRY
+outputs.PrimaryOutput.fileName : "sim.sgamba.cals1b0s11r0000.CalibStationVST.000001_00000000.art"
+services.GeometryService.inputFile: "Production/JobConfig/cosmic/geom_cosmic.txt"
+services.GeometryService.bFieldFile: "Offline/Mu2eG4/geom/bfgeom_no_field.txt"
