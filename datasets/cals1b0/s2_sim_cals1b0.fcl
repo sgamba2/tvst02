@@ -10,7 +10,7 @@
 
 ##include "Offline/Filters/fcl/prolog.fcl"
 ##include "Production/JobConfig/digitize/OnSpill.fcl"
-#include "CalibStationVST/datasets/cals1b0/Digitize.fcl"
+#include "tvst02/datasets/cals1b0/Digitize.fcl"
 
 #process_name : @local::PROCESS_NAME
 
@@ -63,7 +63,7 @@ outputs: {
     
     SignalOutput : { @table::outputs.SignalOutput
 	SelectEvents : ["UntriggeredPath"]
-	fileName : "dig.sgamba.cals1b0s11.CalibStationVST.000001_00000000.art"
+	fileName : "dig.sgamba.cals1b0s11.tvst02.000001_00000000.art"
     }
 }
 #------------------------------------------------------------------------------
@@ -79,8 +79,8 @@ services.DbService.version : 1
 #services.GeometryService.inputFile               : "CosmicRecoSara/fcl/geom_common_trackerVST.txt"
 services.GeometryService.bFieldFile: "Offline/Mu2eG4/geom/bfgeom_no_field.txt"
 
-services.TFileService.fileName                   : "nts.sgamba.cals1b0s11.CalibStationVST.000001_00000000.art"
-outputs.defaultOutput.fileName                   : "dig.sgamba.cals1b0s11.CalibStationVST.000001_00000000.art"
+#services.TFileService.fileName                   : "nts.sgamba.cals1b0s22.tvst02.000001_00000000.root"
+outputs.SignalOutput.fileName                   : "dig.sgamba.cals1b0s22.tvst02.000001_00000000.art"
 
 # physics.producers.FindMCPrimary                  : { @table::physics.producers.NullMCPrimary }
 

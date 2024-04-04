@@ -1,0 +1,87 @@
+#!/usr/bin/env python
+#
+# Script to build the files found in this directory.
+#------------------------------------------------------------------------------
+import os
+Import('tvst02_env')
+Import('stntuple_helper')
+#------------------------------------------------------------------------------
+# 2016-10-10: STNTUPLE link: add ROOT 'EG' library after 'Physics' library
+#------------------------------------------------------------------------------
+def local_build():
+    local_env = tvst02_env.Clone()
+
+    babarlibs = local_env['BABARLIBS']
+    rootlibs  = local_env['ROOTLIBS']
+
+    if ( not ("EG" in rootlibs)): rootlibs.insert(rootlibs.index("Physics")+1,"EG");
+
+    helper = stntuple_helper(local_env);
+
+    helper.handle_dictionaries();
+
+    libs      = [  'Stntuple_loop',
+                  'Stntuple_base',
+                  'Stntuple_val',
+#
+                  'mu2e_CalPatRec',
+                  'mu2e_TrkReco',
+                  'mu2e_TrkHitReco',
+                  'mu2e_TrackerConditions',
+                  'mu2e_Mu2eBTrk',
+                  'mu2e_GeometryService',
+                  'mu2e_ConditionsService',
+                  'mu2e_Mu2eUtilities',
+                  'mu2e_GeneralUtilities',
+                  'mu2e_CaloCluster',
+                  'mu2e_CalorimeterGeom',
+                  'mu2e_CRVResponse',
+                  'mu2e_MCDataProducts',
+                  'mu2e_RecoDataProducts',
+                  'mu2e_BTrkData',
+                  'mu2e_BFieldGeom',
+                  'mu2e_DataProducts',
+                  # 'mu2e_Mu2eInterfaces',
+                  'mu2e_DbService',
+                  'mu2e_DbTables',
+                  babarlibs,
+                  'art_Framework_Core',
+                  'art_Framework_Principal',
+                  'art_Framework_Services_Registry',
+                  'art_root_io_tfile_support',
+                  'art_root_io_TFileService',
+                  'art_Framework_Services_Optional_RandomNumberGenerator_service',
+                  'art_Persistency_Common',
+                  'art_Persistency_Provenance',
+                  'art_Utilities',
+                  'canvas',
+                  'MF_MessageLogger',
+                  'fhiclcpp',
+                  'fhiclcpp_types',
+                  'tbb',
+                  'cetlib',
+                  'cetlib_except',
+                  'CLHEP',
+                  rootlibs,
+                  # extrarootlibs,
+                  'xerces-c',
+                  'boost_filesystem',
+                  'pthread',
+                  'hep_concurrency',
+                  'artdaq-core-mu2e_Data',
+                  'artdaq-core_Data',
+                  'tracelib'
+                  # 'DTCInterface'
+              ];
+
+    list_of_cc_files = Glob('*.cc',strings=True);
+    list_of_modules  = Glob('*_module.cc', strings=True)
+    list_of_plugins  = Glob('*_tool.cc'  , strings=True)
+    skip_list        = list_of_modules+list_of_plugins
+
+    helper.build_libs(list_of_cc_files,skip_list,libs);
+    helper.build_modules(list_of_modules+list_of_plugins,[],libs)
+#------------------------------------------------------------------------------
+local_build()
+
+# print "tmpdir:"+env['TMP_LIB_DIR']

@@ -53,7 +53,7 @@ END_PROLOG
 #include "Offline/CaloCluster/fcl/prolog.fcl"
 #include "Offline/CalPatRec/fcl/prolog.fcl"
 #include "Offline/CalPatRec/fcl/prolog_common.fcl"
-#include "CalibStationVST/datasets/cals1b0/prolog.fcl"
+#include "tvst02/datasets/cals1b0/prolog.fcl"
 #------------------------------------------------------------------------------
 # trigger prologs
 #------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ END_PROLOG
 #include "Stntuple/fcl/production_jobconfig_common_prolog.fcl" 
 #include "Stntuple/fcl/production_jobconfig_digitize_prolog.fcl" 
 #include "Stntuple/fcl/production_jobconfig_primary_prolog.fcl"
-#include "CalibStationVST/datasets/cals1b0/production_jobconfig_reco_prolog.fcl"   
+#include "tvst02/datasets/cals1b0/production_jobconfig_reco_prolog.fcl"   
 # \\ #include "Stntuple/fcl/stntuple_templates.fcl"
 #------------------------------------------------------------------------------
 services : { @table::Services.SimAndReco

@@ -1,0 +1,64 @@
+# -*- mode:tcl -*-
+# Run StrawAndCaloDigisFromFragments module to convert artdaq::Fragment collections
+# into TRK and CAL digi collections.
+# Usage: mu2e -c DAQ/test/generateDigiFromFragment.fcl -s <input art files> -n '-1'
+#
+#
+#-----------------------------------------------------------------------------
+BEGIN_PROLOG
+  STN_COMPRESS_MCS    : "compressDigiMCs"                    # "compressRecoMCs" looks dangerous
+  STN_VDHITS_COLL_TAG : "compressDigiMCs:virtualdetector"    #
+  GEN_ID              : "particleGun"                        #    ignore GEN_ID check
+  PDG_ID              : 0                                    # 0: ignore PDG_ID
+END_PROLOG
+
+#include "Offline/fcl/minimalMessageService.fcl"
+#include "Offline/fcl/standardServices.fcl"
+
+#include "Offline/TrkReco/fcl/prolog.fcl"
+
+#include "Stntuple/fcl/prolog.fcl"
+#include "tvst02/fcl/prolog.fcl"
+
+process_name : TCalStat
+
+source : {
+   module_type : RootInput
+   fileNames   : @nil
+   maxEvents   : -1
+}
+
+services : @local::Services.Reco
+
+physics : {
+    
+    producers : { }
+    filters   : { }
+    
+    analyzers : {
+	TCalStat : { @table::tvst02.analyzers.TCalStat
+	    trkfCollTag         : "compressDetStepMCs"    
+	    interactiveMode     : 0
+	    maxFileSize         : 2000        ## in MBytes
+	    analyzeStation      : 1
+            activeLinks         : [ 0 , 1,2,3,4,5,6,7,8,9,10,11] ##[0]if only one roc, [0,1]if two rocs
+
+	}
+    }
+
+    t1 : [  ]
+
+    e1 : [ TCalStat ]
+    # e1 : []
+
+    trigger_paths  : [ t1 ]
+    end_paths      : [ e1 ]
+}
+
+
+services.TFileService.fileName                   : "prova.hist"
+services.scheduler.wantSummary                   : true
+
+#source.fileNames : [ "/exp/mu2e/data/projects/tracker/vst/datasets/raw.mu2e.trkvst.annex.art/raw.mu2e.trkvst.annex.105099_00000001.art" ]
+
+
