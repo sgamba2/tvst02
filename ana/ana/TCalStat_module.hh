@@ -76,91 +76,85 @@ namespace mu2e {
   class TCalStat : public THistModule {
 
     enum { kNChannels          = 96,
-           kMaxNLinks          =  12,
-           kMaxNHitsPerChannel = 20,
-	   kNErrorBits         = 5,
-	   kNBytesErrorBit     = 0x0001,
-	   kNWfsErrorBit       = 0x0002,
-	   kLinkIDErrorBit     = 0x0004,
-	   kChIDErrorBit       = 0x0008,
-           kNChHitsErrorBit    = 0x0010
+	   kNPanels            = 6,
+	   kNPlanes            = 2
     };
 
   public:
 
-  
-
     struct ChannelHist_t {
       TH1F*         nhits;
-     
+      TH1F*         nhitsr;
+      TH1F*         nhitsl;
 
     };
-                                        // per-ROC histograms
-    struct EventHist_t {
-      TH1F*         nhits;
-     
-    };
-
-    struct RocHist_t {
+                                   
+    struct PanelHist_t {
     
       TH1F*         nhits;
+      TH1F*         nhitsr;
+      TH1F*         nhitsl;
       TH2F*         nh_vs_ch;
-
+      TH2F*         nh_vs_ch_r;
+      TH2F*         nh_vs_ch_l;
       ChannelHist_t channel[kNChannels];
+    };
+    
+
+    struct PlaneHist_t {
+      TH1F*         nhits;
+      PanelHist_t   panel[kNPanels];
+     
+    };
+
+    struct EventHist_t {
+      TH1F*         nhits;
+      PlaneHist_t   plane[kNPlanes];
     };
 
     struct ChannelData_t {
-      int      nhits;
+      int       nhits;
+      int       nhitsr;
+      int       nhitsl;
     
     };
 
-    struct RocData_t {
+    struct PanelData_t {
      
-      int       nhits;
-     
+      int            nhits;
+      int            nhitsr;
+      int            nhitsl;
       ChannelData_t  channel[kNChannels];
      
     };
 
+    struct PlaneData_t {
+      int          nhits;
+      PanelData_t  panel[kNPanels];
+     
+    };
 
-//-----------------------------------------------------------------------------
-// data part
-//-----------------------------------------------------------------------------
-                                        // in reality, this is the fragment data, 
-                                        // an event can contain multiple fragments
+    struct Hist_t {
+      EventHist_t   event;
+      PlaneHist_t   plane[kNPlanes];
+    } _Hist;
+
+    struct EventData_t {      
+      int         nhtot;
+      PlaneData_t plane[kNPlanes];    
+    } _event_data;
 
 //-----------------------------------------------------------------------------
 // talk-to parameters
 //-----------------------------------------------------------------------------
    
-           // active links - connected ROCs
-      art::InputTag    _trkfCollTag;
-std::vector<int> _activeLinks;    
- int              _analyzeStation;
-
-//-----------------------------------------------------------------------------
-// the rest
-//-----------------------------------------------------------------------------
-    int              _nActiveLinks;
-    int              _referenceChannel[kMaxNLinks][2];
-     int              _initialized;   
+          
+    art::InputTag     _trkfCollTag;
+    int               _analyzeStation;
+    int                _initialized;   
     const art::Event*  _event;
-//-----------------------------------------------------------------------------
-// forgetting, for now, about multiple DTC's
-//-----------------------------------------------------------------------------
-    struct Hist_t {
-      EventHist_t   event;
-      RocHist_t     roc[kMaxNLinks];
-    } _Hist;
 
-    struct EventData_t {
-            
-      int       nhtot;
-    
-      RocData_t rdata[kMaxNLinks];
 
-    
-    } _event_data;
    
 
     explicit TCalStat(fhicl::ParameterSet const& pset);
@@ -173,17 +167,19 @@ std::vector<int> _activeLinks;
     virtual void endJob  () override;
     
     virtual void analyze         (const art::Event& e) override;
-    void         analyze_roc(const art::Event& e);
+    void         analyze_panel(const art::Event& e);
 
     void         book_channel_histograms(art::TFileDirectory* Dir, int RunNumber, ChannelHist_t* Hist, int Ich);
     void         book_event_histograms  (art::TFileDirectory* Dir, int RunNumber, EventHist_t*   Hist);
-    void         book_roc_histograms    (art::TFileDirectory* Dir, int RunNumber, RocHist_t*     Hist, int Link);
+    void         book_panel_histograms    (art::TFileDirectory* Dir, int RunNumber, PanelHist_t*     Hist, int pan);
+    void         book_plane_histograms    (art::TFileDirectory* Dir, int RunNumber, PlaneHist_t*     Hist, int pl);
+
     void         book_histograms        (int RunNumber);
   
     void         fill_channel_histograms(ChannelHist_t* Hist, ChannelData_t* Data);
     void         fill_event_histograms  (EventHist_t*   Hist, EventData_t*   Data);
-    void         fill_roc_histograms    (RocHist_t*     Hist, RocData_t*     Data);
-
+    void         fill_panel_histograms    (PanelHist_t*     Hist, PanelData_t*     Data);
+    void         fill_plane_histograms    (PlaneHist_t*     Hist, PlaneData_t*     Data);
                                         // returns -1 if in trouble
     int          fill_histograms        ();
 
