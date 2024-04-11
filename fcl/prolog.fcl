@@ -1,7 +1,7 @@
 # -*- mode: tcl -*- 
 tvst02 : {
     producers : {}  # empty table
-    filters   : {}
+    filters   : {    }
     analyzers : {
 #------------------------------------------------------------------------------
 # analysis of the TRK DAQ fragments
@@ -15,3 +15,5 @@ tvst02 : {
 	}
     }
 }
+
+

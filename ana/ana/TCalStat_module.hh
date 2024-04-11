@@ -84,8 +84,8 @@ namespace mu2e {
 
     struct ChannelHist_t {
       TH1F*         nhits;
-      TH1F*         nhitsr;
-      TH1F*         nhitsl;
+      TH1F*         x_bias;
+
 
     };
                                    
@@ -95,35 +95,45 @@ namespace mu2e {
       TH1F*         nhitsr;
       TH1F*         nhitsl;
       TH2F*         nh_vs_ch;
-      TH2F*         nh_vs_ch_r;
-      TH2F*         nh_vs_ch_l;
+      TH2F*         xp_vs_yp;
+      TH2F*         x_vs_y;
+      TH2F*         xp_vs_yp_nh3;
+
       ChannelHist_t channel[kNChannels];
     };
     
 
     struct PlaneHist_t {
       TH1F*         nhits;
+      TH2F*         x_vs_y;
       PanelHist_t   panel[kNPanels];
      
     };
 
     struct EventHist_t {
       TH1F*         nhits;
+      TH1F*         nhits_nh3;
+      TH1F*         nhits_nh3_ex;
+      TH2F*         x_vs_y;
+      TH2F*         x_vs_y_nh3;
+      TH2F*         x_vs_y_nh3_ex;
+      TH2F*         x_vs_y_rec_p;
+      TH2F*         x_vs_y_rec_pf;
+
       PlaneHist_t   plane[kNPlanes];
     };
 
     struct ChannelData_t {
       int       nhits;
-      int       nhitsr;
-      int       nhitsl;
+
     
     };
 
     struct PanelData_t {
      
       int            nhits;
-      int            nhitsr;
-      int            nhitsl;
+
+     
       ChannelData_t  channel[kNChannels];
      
     };
@@ -140,7 +150,11 @@ namespace mu2e {
     } _Hist;
 
     struct EventData_t {      
-      int         nhtot;
+      int         nhits;
+          int         nhits_nh3;
+
+      int         nhits_nh3_ex;
+
       PlaneData_t plane[kNPlanes];    
     } _event_data;
 

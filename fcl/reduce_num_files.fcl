@@ -1,0 +1,41 @@
+#------------------------------------------------------------------------------
+# stntuple VST data
+# p1 : default reconstruction path
+#------------------------------------------------------------------------------
+BEGIN_PROLOG
+  TRIGGER_PATHS    @protect_ignore: [ p1 ]
+END_PROLOG
+
+#include "Stntuple/fcl/stntuple.fcl"
+
+process_name : CosmicFilter
+
+source       : { module_type : RootInput fileNames : ["undefined", "undefined"] }
+
+physics : { 
+    producers  : { @table::stntuple.producers }
+    filters    : { @table::stntuple.filters   }
+    
+    analyzers  : { @table::stntuple.analyzers }
+
+    @table::stntuple.paths
+#------------------------------------------------------------------------------
+# just an example of a substitution in FCL
+#------------------------------------------------------------------------------
+    p1            : [ CosmicFilter   ]
+    out           : [ defaultOutput ]                 ## [defaultOutput]/[]
+
+    trigger_paths : [ @sequence::TRIGGER_PATHS ]
+    end_paths     : [ out ]
+}
+#------------------------------------------------------------------------------
+#                                   run   sr  evt
+# physics.filters.eventList : [ 
+#                                  1210, 440, 100, 
+#                                  1210, 440, 151
+#                             ]
+#------------------------------------------------------------------------------
+# output file names
+#------------------------------------------------------------------------------
+services.TFileService.fileName            : "/exp/mu2e/data/users/sgamba/sgamba.tvst02.filtered.root"
+outputs.defaultOutput.fileName            : "/exp/mu2e/data/users/sgamba/sgamba.tvst02.filtered.art"

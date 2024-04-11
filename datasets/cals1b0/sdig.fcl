@@ -1,0 +1,89 @@
+# -*- mode: tcl -*- 
+#------------------------------------------------------------------------------
+# use "MDC2020_perfect" calibrations
+#------------------------------------------------------------------------------
+#BEGIN_PROLOG
+#  PROCESS_NAME  @protect_ignore: S4Digi
+#  TRIGGER_PATHS @protect_ignore: [ p1 ]
+#  END_PATHS     @protect_ignore: [ e1 ]      # defined below
+#END_PROLOG 
+
+##include "Offline/Filters/fcl/prolog.fcl"
+##include "Production/JobConfig/digitize/OnSpill.fcl"
+#include "tvst02/datasets/cals1b0/Digitize.fcl"
+
+#process_name : @local::PROCESS_NAME
+
+#------------------------------------------------------------------------------
+# services 
+#------------------------------------------------------------------------------
+services : { @table::Services.SimAndReco
+    TimeTracker : {
+	printSummary : true
+	dbOutput : {
+	    filename  : ""
+	    overwrite : false
+	}
+    }
+   message: @local::default_message
+} 
+#------------------------------------------------------------------------------
+# control random seeds and the output 
+#------------------------------------------------------------------------------
+services.SeedService.baseSeed         : 8
+services.SeedService.maxUniqueEngines : 100
+services.scheduler.wantSummary        : true
+# Limit the amount of "Begin processing the ... record" messages
+services.message.destinations.log.categories.ArtReport.reportEvery : 1
+services.message.destinations.log.categories.ArtReport.limit       : 10000
+services.message.destinations.log.categories.ArtReport.timespan    : 300
+services.message.destinations.log.outputStatistics                 : true
+#------------------------------------------------------------------------------
+# redefine outputs
+#------------------------------------------------------------------------------
+
+#physics.end_paths     : [  "SignalOutput"  ] #@sequence::END_PATHS
+ physics.Endpaths     : [  "SignalOutput"  ]
+#------------------------------------------------------------------------------
+# redefine physics , avoid splitting 
+#------------------------------------------------------------------------------
+physics.filters.CosmicFilter.debug : 0
+
+#physics.p1            : [ @sequence::Digitize.DigitizeSequence ]
+#physics.e1            : [ defaultOutput        ]
+#physics.trigger_paths : [ @sequence::TRIGGER_PATHS ]
+
+
+outputs: {
+    #defaultOutput      : { module_type : RootOutput
+	#SelectEvents   : [ @sequence::TRIGGER_PATHS ]
+     #   outputCommands : [ "keep *_*_*_*", #keep
+      #                     @sequence::Digitize.DigiProducts 
+       #                   ]
+    
+    SignalOutput : { @table::outputs.SignalOutput
+	SelectEvents : ["UntriggeredPath"]
+	fileName : "dig.sgamba.cals1b0s11.tvst02.000001_00000000.art"
+    }
+}
+#------------------------------------------------------------------------------
+#  DB constants
+#------------------------------------------------------------------------------
+services.DbService.purpose : MDC2020_perfect
+services.DbService.version : 1
+# services.DbService.verbose : 2
+#------------------------------------------------------------------------------
+# common geometry file
+# output files
+#------------------------------------------------------------------------------
+#services.GeometryService.inputFile               : "CosmicRecoSara/fcl/geom_common_trackerVST.txt"
+services.GeometryService.bFieldFile: "Offline/Mu2eG4/geom/bfgeom_no_field.txt"
+
+#services.TFileService.fileName                   : "nts.sgamba.cals1b0s22.tvst02.000001_00000000.root"
+outputs.SignalOutput.fileName                   : "dig.sgamba.cals1b0s22.tvst02.000001_00000000.art"
+
+# physics.producers.FindMCPrimary                  : { @table::physics.producers.NullMCPrimary }
+
+# for now, dont use simple physics list
+# physics.producers.g4run.physics.physicsListName:ShieldingM_EMZ
+# physics.producers.g4run.physics.physicsListName  : "QGSP_BERT"
