@@ -1,0 +1,10 @@
+#
+# split the Muon Beam stream into muons and antimuons
+# This is run after the beam stage
+#
+#include "Production/JobConfig/beam/BeamSplitter.fcl"
+process_name: mubeamsplitter
+
+outputs.muonout.fileName : "sim.owner.MuPlusBeamCat.version.sequencer.art"
+physics.filters.muonSelector.ParticleCodes : [ [-13, "uninitialized" , "mu2eKillerVolume" ] ]
+physics.outpath: [ muonout ]

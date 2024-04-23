@@ -1,0 +1,56 @@
+# Re-sample cosmics from stage-1
+# Yuri Oksuzian, 2020
+#include "Offline/CommonMC/fcl/prolog.fcl"
+#include "Offline/fcl/standardServices.fcl"
+#include "tvst02/JobConfig/common/prolog.fcl"
+#include "tvst02/JobConfig/primary/prolog.fcl"
+#include "tvst02/JobConfig/cosmic/prolog.fcl"
+process_name: CosmicS2
+source: { module_type : EmptyEvent }
+
+services : @local::Services.Sim
+physics : {
+  producers : {
+    @table::Common.producers
+    @table::Primary.producers
+    cosmicTimeOffset: @local::Cosmic.cosmicTimeOffset
+ }
+  filters : {
+    @table::Common.filters
+    @table::Primary.filters
+    CosmicResampler: @local::Cosmic.CosmicResampler
+  }
+  analyzers : { @table::Primary.analyzers }
+  PrimaryPath : [ genCounter, cosmicTimeOffset, CosmicResampler, @sequence::Common.g4Sequence, @sequence::Primary.PrimarySequence]
+  EndPath : @local::Primary.EndPath
+  trigger_paths : [ PrimaryPath ]
+  end_paths : [ EndPath ]
+}
+outputs : { PrimaryOutput :@local::Primary.PrimaryOutput }
+# override g4run for resampling: first the inputs
+physics.producers.g4run.inputs: @local::Cosmic.S2Inputs
+# Kill cosmics outside of the CRV region
+physics.producers.g4run.Mu2eG4CommonCut: @local::Cosmic.Mu2eG4CommonCutCosmicS2
+# define sensitive volumes
+physics.producers.g4run.SDConfig.preSimulatedHits:  ["CosmicResampler:CRV"]
+# setup primary finding for either generator (needs extension if new cosmic generators are added)
+physics.producers.FindMCPrimary.PrimaryGenIds: ["CosmicCRY", "CosmicCORSIKA"]
+# add cosmic outputs
+outputs.PrimaryOutput.outputCommands : [
+  "drop *_*_*_*",
+  @sequence::Primary.KeptProducts,
+  @sequence::Cosmic.S2KeptProducts
+]
+# for consistency with S1
+services.GeometryService.inputFile : "tvst02/JobConfig/cosmic/geom_cosmic.txt"
+# allow MCTrajectories to save their own SimParticles
+physics.producers.compressDetStepMCs.compressionOptions.mcTrajectoryCompressionLevel: "noCompression"
+# in this stage only, record neutral particles as (0 energy?) steps
+physics.producers.CrvSteps.removeNeutralParticles : false
+#
+# final configuration
+#
+#include "tvst02/JobConfig/common/MT.fcl"
+#include "tvst02/JobConfig/common/epilog.fcl"
+#include "tvst02/JobConfig/primary/epilog.fcl"
+#include "tvst02/JobConfig/cosmic/resampling_epilog.fcl"

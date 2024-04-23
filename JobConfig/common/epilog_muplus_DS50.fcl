@@ -1,0 +1,7 @@
+#
+# epilog file for running for positive muon beam
+# and with 50% DS field
+#
+services.GeometryService.inputFile  : "Offline/Mu2eG4/geom/geom_common_muplus.txt"
+services.GeometryService.bFieldFile : "Offline/Mu2eG4/geom/bfgeom_DS50_v01.txt"
+

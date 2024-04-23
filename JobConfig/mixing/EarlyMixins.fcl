@@ -1,0 +1,29 @@
+#
+# use the Early samples to select the SimEfficiencies.  Note the default MuStop pileup sample is also 'early' (no time cut)
+#
+physics.filters.EleBeamFlashMixer.mu2e.simStageEfficiencyTags: ["EleBeamCat", "EarlyEleBeamFlashCat" ]
+physics.filters.MuBeamFlashMixer.mu2e.simStageEfficiencyTags: ["MuBeamCat", "EarlyMuBeamFlashCat" ]
+physics.filters.NeutralsFlashMixer.mu2e.simStageEfficiencyTags: ["NeutralsCat", "EarlyNeutralsFlashCat" ]
+#
+physics.filters.EleBeamFlashMixer.mu2e.meanEventsPerPOTFactors: [ @local::Pileup.EarlyEleBeamFlashPrescale , @local::Mixing.EarlyReductionFactor ]
+physics.filters.MuBeamFlashMixer.mu2e.meanEventsPerPOTFactors: [ @local::Pileup.EarlyMuBeamFlashPrescale, @local::Mixing.EarlyReductionFactor ]
+physics.filters.NeutralsFlashMixer.mu2e.meanEventsPerPOTFactors: [ @local::Pileup.EarlyNeutralsFlashPrescale, @local::Mixing.EarlyReductionFactor ]
+physics.filters.MuStopPileupMixer.mu2e.meanEventsPerPOTFactors: [ @local::Pileup.MuminusTargetStopPrescale,  @local::Mixing.EarlyReductionFactor ]
+# testing
+#physics.filters.EleBeamFlashMixer.mu2e.debugLevel:  1
+#physics.filters.MuBeamFlashMixer.mu2e.debugLevel: 1
+#physics.filters.NeutralsFlashMixer.mu2e.debugLevel: 1
+#physics.filters.MuStopPileupMixer.mu2e.debugLevel: 1
+#
+# Define the early digitization time and propagate it
+earlydigitime : 250
+# tracker
+services.ProditionsService.strawElectronics.digitizationStart : @local::earlydigitime
+# crv
+physics.producers.CrvPhotons.digitizationStart : @local::earlydigitime
+physics.producers.CrvSiPMCharges.digitizationStart : @local::earlydigitime
+physics.producers.CrvWaveforms.digitizationStart : @local::earlydigitime
+# calo
+physics.producers.CaloShowerROMaker.digitizationStart : @local::earlydigitime
+physics.producers.CaloDigiMaker.digitizationStart : @local::earlydigitime
+#

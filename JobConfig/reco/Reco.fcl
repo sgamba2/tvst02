@@ -1,0 +1,39 @@
+#
+# Reconstruct from digis, including MC information
+# original author: David Brown (LBNL) 1 Feb 2020
+#
+#include "Offline/fcl/minimalMessageService.fcl"
+#include "Offline/fcl/standardServices.fcl"
+#include "tvst02/JobConfig/reco/prolog.fcl"
+
+# name all processes the same, to mask any provenance in ensemble creation
+process_name: Reconstruct
+source : { module_type : RootInput }
+services : @local::Services.Reco
+physics :
+{
+  producers : @local::Reconstruction.producers
+  filters : @local::Reconstruction.filters
+  analyzers: @local::Reconstruction.analyzers
+  RecoPath : [  @sequence::Reconstruction.RecoMCPath ]
+  EndPath : @local::Reconstruction.EndPath
+}
+outputs : {
+  Output : {
+    @table::Reconstruction.Output
+    SelectEvents : [ "RecoPath" ]
+  }
+}
+# final config
+#include "tvst02/JobConfig/common/epilog.fcl"
+#include "tvst02/JobConfig/reco/epilog.fcl"
+
+
+physics.end_paths : [ EndPath ]
+physics.trigger_paths : [ RecoPath ]
+
+
+#
+#  Temporarily drop the trigger products: the embedded ComboHitCollections have incompatible schema
+#
+#include "tvst02/JobConfig/reco/drop_trigger.fcl"

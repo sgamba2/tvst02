@@ -1,0 +1,39 @@
+# -*- mode:tcl -*-
+#------------------------------------------------------------------------------
+# reconstrunction and creation of combohitgeom and stereohitgeom
+#------------------------------------------------------------------------------
+BEGIN_PROLOG
+  INPUT_MODULE  @protect_ignore: RootInput        # choices: EmptyEvent / RootInput
+  TRIGGER_PATHS @protect_ignore: [ p1 ]          # BTRK (KinKal) fits
+  END_PATHS     @protect_ignore: [ e1 ]      # defined below
+END_PROLOG
+
+#include "Stntuple/fcl/stntuple.fcl"
+
+process_name : TVST02
+
+source.fileNames : ["/exp/mu2e/data/users/sgamba/dig.sgamba.cals1b0s21.tvst02.001210_00000002.art"]
+
+source.inputCommands:[ "keep *" ]
+
+physics : {
+
+    producers : { 
+	@table::Reconstruction.producers
+    }
+    p1 : [ @sequence::Reconstruction.TrkReco  ]
+
+    @table::production.paths
+    trigger_paths : [ p1 ]
+    
+    e1            : [ defaultOutput ]
+    end_paths     : [ e1            ]
+}
+
+services.GeometryService.inputFile: "Offline/Mu2eG4/geom/geom_common_extracted.txt"
+services.GeometryService.bFieldFile: "Offline/Mu2eG4/geom/bfgeom_no_field.txt"
+
+services.TFileService.fileName        : "/exp/mu2e/data/users/sgamba/nts.sgamba.tvst02b0s3r0000.tvst02.001210_00000002.root"
+outputs.defaultOutput.fileName        : "/exp/mu2e/data/users/sgamba/mcs.sgamba.tvst02b0s3r0000.tvst02.001210_00000002.art"
+
+

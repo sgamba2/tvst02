@@ -1,0 +1,5 @@
+#include "tvst02/JobConfig/cosmic/S1DSStops.fcl"
+source: @local::Cosmic.CORSIKA.source
+physics.producers.generate : @local::Cosmic.CORSIKA.generate
+outputs.S1Output.fileName         : "sim.owner.CosmicDSStopsCORSIKA.version.sequencer.art"
+outputs.S1LowOutput.fileName         : "sim.owner.CosmicDSStopsCORSIKALow.version.sequencer.art"

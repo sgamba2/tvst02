@@ -1,0 +1,12 @@
+#include "tvst02/JobConfig/cosmic/NoField.fcl"
+
+source.module_type: EmptyEvent
+source.firstRun : 1205
+physics.producers.generate : {
+  @table::Cosmic.generateCRY
+  inputFile    : "tvst02/JobConfig/cosmic/extractedCRYconfig.txt"
+}
+outputs.PrimaryOutput.fileName : "dts.owner.CosmicCRYExtracted.version.sequencer.art"
+services.GeometryService.inputFile: "tvst02/JobConfig/cosmic/geom_cosmic_extracted.txt"
+services.GeometryService.bFieldFile: "Offline/Mu2eG4/geom/bfgeom_no_field.txt"
+physics.filters.PrimaryFilter.CrvSteps: [ "CrvSteps" ]

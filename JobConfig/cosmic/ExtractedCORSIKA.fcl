@@ -1,0 +1,16 @@
+#include "tvst02/JobConfig/cosmic/NoField.fcl"
+
+source: {
+  @table::Cosmic.CORSIKA.source
+  # override for extracted position
+  targetBoxYmax: 9880 # defined by CRV
+  targetBoxZmin: 17105 # defined by CRV
+  targetBoxZmax: 32220 # defined by Calo Z1
+}
+physics.producers.generate : {
+  @table::Cosmic.CORSIKA.generate
+  targetBoxYmax : 9880
+}
+outputs.PrimaryOutput.fileName : "dts.owner.CosmicCORSIKAExtracted.version.sequencer.art"
+services.GeometryService.inputFile: "tvst02/JobConfig/cosmic/geom_cosmic_extracted.txt"
+services.GeometryService.bFieldFile: "Offline/Mu2eG4/geom/bfgeom_no_field.txt"

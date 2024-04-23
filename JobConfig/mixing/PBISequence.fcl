@@ -1,0 +1,7 @@
+#
+#  Overwrite the
+#
+physics.producers.PBISim : {
+  module_type : NullProducer
+  nEngines    : 1
+}

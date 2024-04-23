@@ -1,0 +1,7 @@
+#
+# Reconstruct from digis using straight line tracks
+#
+#include "tvst02/JobConfig/reco/Reco.fcl"
+#
+physics.RecoPath : [ @sequence::Reconstruction.OffSpillRecoMCPath ]
+

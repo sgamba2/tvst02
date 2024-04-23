@@ -1,0 +1,6 @@
+#include "tvst02/JobConfig/cosmic/NoField.fcl"
+source.module_type: EmptyEvent
+physics.producers.generate : @local::Cosmic.generateCRY
+outputs.PrimaryOutput.fileName : "dts.owner.CosmicCRYNominalNoField.version.sequencer.art"
+services.GeometryService.inputFile: "tvst02/JobConfig/cosmic/geom_cosmic.txt"
+services.GeometryService.bFieldFile: "Offline/Mu2eG4/geom/bfgeom_no_field.txt"

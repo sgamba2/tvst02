@@ -1,0 +1,22 @@
+# configure NoField digitization
+# add trigger paths; for now use the Extracted trigger menu, as these assume no field (should become renamed TODO
+#include "mu2e_trig_config/gen/trig_extrPosPSConfig_OffSpill.fcl"
+#include "mu2e_trig_config/gen/trig_extrPos_OffSpill.fcl"
+# then generic digitization
+#include "tvst02/JobConfig/digitize/Digitize.fcl"
+# set OffSpill timing
+#include "tvst02/JobConfig/digitize/OffSpill_epilog.fcl"
+# add trigger filters
+physics.filters : { @table::physics.filters @table::Trig_physMenuPSConfig }
+# add the trigger paths
+physics.trigger_paths : [ @sequence::Digitize.trigger_paths, @sequence::Trig_physMenu.trigger_paths]
+# configure 'Triggered' output to be calibration triggers
+outputs.TriggeredOutput.SelectEvents : [
+  @sequence::Digitize.TrkTriggers,
+  @sequence::Digitize.CaloTriggers ]
+# no-field
+services.GeometryService.bFieldFile: "Offline/Mu2eG4/geom/bfgeom_no_field.txt"
+physics.filters.TriggerablePrescale.prescaleFactor : 100 # only record 1% of the untriggered
+physics.filters.Triggerable.MaxParticleMom : 1e10
+physics.trigger_paths : [@sequence::Trig_extrPos.trigger_paths]
+#include "mu2e_trig_config/core/trigDigiInputsEpilog.fcl"

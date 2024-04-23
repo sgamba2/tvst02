@@ -1,0 +1,18 @@
+#
+# Base configuration for Resampling IPA muon stops and generating primary particles from them
+#
+# original author: S Middleton
+#
+#include "Production/JobConfig/primary/StopParticle.fcl"
+
+physics.PrimaryPath : [ IPAMuminusStopResampler, @sequence::Common.generateSequence, @sequence::Common.g4Sequence, @sequence::Primary.PrimarySequence ]
+physics.trigger_paths : [ PrimaryPath ]
+outputs : { PrimaryOutput :@local::Primary.PrimaryOutput }
+physics.EndPath : [ @sequence::Primary.EndSequence, PrimaryOutput ]
+physics.end_paths : [ EndPath ]
+
+physics.producers.g4run.inputs.inputPhysVolumeMultiInfo: "IPAMuminusStopResampler"
+physics.producers.g4run.inputs.updateEventLevelVolumeInfos: {
+  input: "IPAMuminusStopResampler:eventlevel"
+  outInstance: "eventlevel"
+}

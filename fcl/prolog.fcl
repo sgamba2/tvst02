@@ -9,7 +9,9 @@ tvst02 : {
 	TCalStat : { module_type:TCalStat
 	    @table::StntupleTModuleFclDefaults
 	    
-	    trkfCollTag         : "compressDetStepMCs"   
+	    trkfCollTag         : "compressDetStepMCs"
+   	    digiCollTag         : "makeSD"
+
 	    interactiveMode     : 0
 	    rootMacro           : ""
 	}

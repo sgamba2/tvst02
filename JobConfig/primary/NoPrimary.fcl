@@ -1,0 +1,36 @@
+#
+# generate and produce  empty 'primary' event for NoPrimary (pure pileup) simulation
+#
+# original author: Dave Brown, LBNL
+#
+#include "Offline/fcl/standardServices.fcl"
+#include "Production/JobConfig/common/prolog.fcl"
+#include "Production/JobConfig/primary/prolog.fcl"
+process_name: Primary
+source: { module_type : EmptyEvent }
+services : @local::Services.Sim
+physics : {
+  producers : {
+    compressDetStepMCs : {
+      module_type : CompressDetStepMCs
+      strawGasStepTag : "FindMCPrimary"
+      caloShowerStepTag : "FindMCPrimary"
+      crvStepTag : "FindMCPrimary"
+      simParticleTags : [ "FindMCPrimary" ]
+      mcTrajectoryTag : "FindMCPrimary"
+      stepPointMCTags : [ "FindMCPrimary:virtualdetector", "FindMCPrimary:protonabsorber", "FindMCPrimary:stoppingtarget" ]
+      compressionOptions : @local::DetStepCompression.standardCompression
+      debugLevel : 0
+    }
+    FindMCPrimary : @local::Primary.producers.NullMCPrimary
+  }
+}
+#include "Production/JobConfig/common/epilog.fcl"
+services.SeedService.baseSeed : @local::Common.BaseSeed
+physics.PrimaryPath : [ FindMCPrimary, compressDetStepMCs ]
+physics.trigger_paths : [ PrimaryPath ]
+outputs : { PrimaryOutput : @local::Primary.PrimaryOutput }
+outputs.PrimaryOutput.fileName: "dts.owner.NoPrimary.version.sequencer.art"
+physics.EndPath : [ PrimaryOutput ]
+physics.end_paths : [ EndPath ]
+

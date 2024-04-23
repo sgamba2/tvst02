@@ -1,0 +1,37 @@
+#include "tvst02/JobConfig/reco/NoField.fcl"
+services.GeometryService.inputFile: "Offline/Mu2eG4/geom/geom_common_extracted.txt"
+services.GeometryService.bFieldFile: "Offline/Mu2eG4/geom/bfgeom_no_field.txt"
+##include "Offline/CRVResponse/fcl/epilog_extracted.fcl"
+
+#geometry
+services.DbService.purpose          : "MDC2020_perfect"
+services.DbService.version          : "v1_0"
+
+# the fileds below will get filled in by generate_fcl
+
+outputs.Output.fileName: "mcs.owner.description.version.sequencer.art"
+
+physics.producers.makePH.MaximumTime      : 1000000
+physics.producers.makePH.MinimumTime      : 0
+physics.producers.makeSH.MaximumTime      : 1000000
+physics.producers.makeSH.MinimumTime      : 0
+physics.producers.makePH.MaximumNHits      : 1000000
+physics.producers.makePH.MinimumNHits      : 1
+
+
+physics.filters.RecoFilter.TrkTags : [ "KKLine" ]
+physics.filters.RecoFilter.MomentumCutoff : [ 0.]
+physics.producers.SimpleTimeCluster.HitSelectionBits  : [""]
+
+physics.producers.SelectRecoMC.KalSeedCollections : [ KKLine ]
+physics.producers.SelectRecoMC.HelixSeedCollections : [ ]
+physics.producers.KKFit.KalSeeds : [ "KKLine"]
+
+
+
+physics.producers.KKLine.ModuleSettings.SaveAllFits : true
+#drift
+physics.producers.KKLine.ExtensionSettings : @local::Mu2eKinKal.SEEDEXT
+
+#without this out of time job
+physics.producers.KKLine.ExtensionSettings.BFieldCorrection : false

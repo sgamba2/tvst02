@@ -3,10 +3,10 @@
 # p1 : default reconstruction path
 #------------------------------------------------------------------------------
 BEGIN_PROLOG
-  TRIGGER_PATHS    @protect_ignore: [ p1 ]
+ TRIGGER_PATHS    @protect_ignore: [ p1 ]
 END_PROLOG
 
-#include "Stntuple/fcl/stntuple.fcl"
+#include "fcl_CRY/stntuple.fcl"
 
 process_name : CosmicFilter
 
@@ -28,6 +28,9 @@ physics : {
     trigger_paths : [ @sequence::TRIGGER_PATHS ]
     end_paths     : [ out ]
 }
+physics.filters.CosmicFilter.debug : 0
+
+
 #------------------------------------------------------------------------------
 #                                   run   sr  evt
 # physics.filters.eventList : [ 
@@ -37,5 +40,7 @@ physics : {
 #------------------------------------------------------------------------------
 # output file names
 #------------------------------------------------------------------------------
+services.DbService.purpose : MDC2020_perfect
+services.DbService.version : 1
 services.TFileService.fileName            : "/exp/mu2e/data/users/sgamba/sgamba.tvst02.filtered.root"
 outputs.defaultOutput.fileName            : "/exp/mu2e/data/users/sgamba/sgamba.tvst02.filtered.art"

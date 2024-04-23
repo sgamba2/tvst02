@@ -1,0 +1,60 @@
+BEGIN_PROLOG
+	PROCESS_NAME @protect_ignore: S4Digi
+	TRIGGER_PATHS: [ p1 ]
+	END_PATHS @protect_ignore: [ e1 ]
+END_PROLOG
+
+#
+#  core digitization configuration.  This gets specialized by combining it with digitization-type specific
+#  configuration (OnSpill, OffSpill, Extracted, ...)
+#
+#include "tvst02/JobConfig/common/prolog.fcl"
+#include "tvst02/JobConfig/digitize/prolog.fcl"
+# name all processes the same, to mask any provenance in ensemble creation
+process_name: Digitize
+source : { module_type : RootInput }
+services : @local::Services.SimAndReco # reco is needed for the trigger
+physics : {
+  producers : { @table::Digitize.producers }
+  filters: { @table::Digitize.filters }
+  analyzers: { @table::Digitize.analyzers }
+  # define the digitization paths.  Trigger paths are added specific to digitization type
+  DigitizePath : @local::Digitize.DigitizeSequence
+  TriggerablePath : [ @sequence::Digitize.DigitizeSequence ]#, @sequence::Digitize.TriggerableSequence
+  # define the trigger sequences and paths
+  @table::TrigRecoSequences
+  @table::TrigSequences
+UntriggeredPath : [@sequence::Digitize.DigitizeSequence, @sequence::Digitize.UntriggeredSequence ]
+}
+# define output streams
+#outputs : @local::Digitize.Outputs
+#physics.EndPath : @local::Digitize.EndPath
+#physics.end_paths : [ EndPath ]
+physics.producers.EWMProducer.SpillType : 0
+services.DbService.purpose : MDC2020_perfect
+services.DbService.version : 1
+
+physics.p1 : [ @sequence::Digitize.DigitizeSequence ]
+physics.e1 : [ defaultOutput ]
+physics.trigger_paths : [ @sequence::TRIGGER_PATHS ]
+physics.end_paths    : [ @sequence::END_PATHS ]
+physics.trigger_paths[0] : DigitizePath
+physics.trigger_paths[1] : UntriggeredPath
+outputs.defaultOutput.fileName :  "digi_CRY_000.art" 
+outputs: {
+	 defaultOutput : {module_type : RootOutput
+	 	       SelectEvents : [@sequence::TRIGGER_PATHS]
+		       outputCommands : [ "drop *_*_*_*",
+		       @sequence::Digitize.DigiProducts
+		       ]
+	}
+	 SignalOutput : @local::Digitize.SignalOutput	 
+}
+#services.DbService.verbose : 2
+#
+# Final configuration
+#
+#include "tvst02/JobConfig/common/epilog.fcl"
+#include "tvst02/JobConfig/digitize/epilog.fcl"
+#include "mu2e_trig_config/core/trigDigiInputsEpilog.fcl"
+

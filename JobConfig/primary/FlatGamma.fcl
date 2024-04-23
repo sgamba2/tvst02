@@ -1,0 +1,18 @@
+#
+# generate and produce Detector Steps from flat spectrum using mu- target stops
+#
+# original author: S Middleton
+#
+#include "Production/JobConfig/primary/TargetStopParticle.fcl"
+physics.producers.generate : {
+  module_type : FlatMuonDaughterGenerator
+  inputSimParticles: TargetStopResampler
+  stoppingTargetMaterial : "Al"
+  pdgId : 22
+  startMom: 10
+  endMom: 100
+  verbosity : 0
+}
+
+physics.producers.FindMCPrimary.PrimaryProcess : "mu2eFlatPhoton"
+outputs.PrimaryOutput.fileName: "dts.owner.FlatGamma.version.sequencer.art"

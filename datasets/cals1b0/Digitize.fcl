@@ -8,8 +8,8 @@
 #  core digitization configuration.  This gets specialized by combining it with digitization-type specific
 #  configuration (OnSpill, OffSpill, Extracted, ...)
 #
-#include "Production/JobConfig/common/prolog.fcl"
-#include "Production/JobConfig/digitize/prolog.fcl"
+#include "tvst02/JobConfig/common/prolog.fcl"
+#include "tvst02/JobConfig/digitize/prolog.fcl"
 # name all processes the same, to mask any provenance in ensemble creation
 process_name: Digitize
 source : { module_type : RootInput }
@@ -54,7 +54,7 @@ outputs: {
 #
 # Final configuration
 #
-#include "Production/JobConfig/common/epilog.fcl"
-#include "Production/JobConfig/digitize/epilog.fcl"
+#include "tvst02/JobConfig/common/epilog.fcl"
+#include "tvst02/JobConfig/digitize/epilog.fcl"
 #include "mu2e_trig_config/core/trigDigiInputsEpilog.fcl"
 

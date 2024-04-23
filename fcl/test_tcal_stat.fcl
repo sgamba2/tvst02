@@ -37,7 +37,10 @@ physics : {
     
     analyzers : {
 	TCalStat : { @table::tvst02.analyzers.TCalStat
-	    trkfCollTag         : "compressDetStepMCs"    
+	    trkfCollTag         : "compressDetStepMCs"  
+	    digiCollTag         : "makeSD"
+	    recCollTag          : "makeSTHG"
+	    comboCollTag          : "makePHG"
 	    interactiveMode     : 0
 	    maxFileSize         : 2000        ## in MBytes
 	    analyzeStation      : 1
@@ -57,36 +60,5 @@ physics : {
 services.TFileService.fileName                   : "prova.hist"
 services.scheduler.wantSummary                   : true
 
-source.fileNames : [ "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00002/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000002.art", 
-		    "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00000/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000000.art",
-		    "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00001/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000001.art",
-		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00003/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000003.art", 
-		    "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00004/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000004.art",
-		    "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00005/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000005.art",
-		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00006/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000006.art", 
-		    "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00007/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000007.art",
-		    "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00008/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000008.art",
-		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00009/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000009.art", 
-		    "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00010/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000010.art",
-		    "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00011/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000011.art",
-		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00012/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000012.art",
-		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00013/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000013.art",
-		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00014/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000014.art",
-		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00015/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000015.art",
-		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00016/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000016.art",
-		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00017/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000017.art",
-		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00018/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000018.art",
-		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00019/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000019.art",
-		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00020/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000020.art",
-		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00021/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000021.art",
-		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00022/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000022.art",
-		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00023/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000023.art",
-		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00024/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000024.art",
-		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00025/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000025.art",
-		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00026/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000026.art",
-		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00027/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000027.art",
-		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00028/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000028.art",
-		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00029/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000029.art",
-		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/10371625/00/00030/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000030.art"]
 
 

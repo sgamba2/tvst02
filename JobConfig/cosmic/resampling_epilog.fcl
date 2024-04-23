@@ -1,0 +1,6 @@
+# Geant4 physics settings to speed up simulation
+ physics.producers.g4run.physics.minRangeRegionCuts: { CalorimeterMother : 0.1 TrackerMother : 0.001 }
+ physics.producers.g4run.physics.minRangeCut : 1.0 # mm
+ physics.producers.g4run.physics.physicsListName: ShieldingM
+ physics.producers.g4run.physics.useEmOption4InTracker: true
+ 

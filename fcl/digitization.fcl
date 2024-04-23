@@ -63,7 +63,8 @@ outputs: {
     
     SignalOutput : { @table::outputs.SignalOutput
 	SelectEvents : ["UntriggeredPath"]
-	fileName : "dig.sgamba.cals1b0s11.tvst02.000001_00000000.art"
+	fileName : "dig.sgamba.cals1b0s11.tvst02.001210_00000003.art"
+	outputCommands : [ "keep *_*_*_*"]	
     }
 }
 #------------------------------------------------------------------------------
@@ -78,9 +79,11 @@ services.DbService.version : 1
 #------------------------------------------------------------------------------
 #services.GeometryService.inputFile               : "CosmicRecoSara/fcl/geom_common_trackerVST.txt"
 services.GeometryService.bFieldFile: "Offline/Mu2eG4/geom/bfgeom_no_field.txt"
-
-#services.TFileService.fileName                   : "nts.sgamba.cals1b0s22.tvst02.000001_00000000.root"
-outputs.SignalOutput.fileName                   : "dig.sgamba.cals1b0s22.tvst02.000001_00000000.art"
+physics.producers.EWMProducer.SpillType : 0
+services.DbService.purpose : MDC2020_perfect
+services.DbService.version : 1
+services.TFileService.fileName                   : "nts.sgamba.cals1b0s21.tvst02.001210_00000000.root"
+outputs.SignalOutput.fileName                   : "dig.sgamba.cals1b0s21.tvst02.001210_00000003.art"
 
 # physics.producers.FindMCPrimary                  : { @table::physics.producers.NullMCPrimary }
 

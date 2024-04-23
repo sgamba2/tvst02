@@ -1,0 +1,5 @@
+#include "tvst02/JobConfig/cosmic/S1DSStops.fcl"
+
+source.module_type: EmptyEvent
+physics.producers.generate.inputfile    : "tvst02/JobConfig/cosmic/genconfig_cosmic_general_box.txt"
+physics.producers.generate.module_type  : EventGenerator

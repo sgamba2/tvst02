@@ -1,0 +1,69 @@
+#
+# Re-sample pions and create stops.  Uses infinite pion lifetime
+#
+# original author: Sophie Middleton , 2021, based on code by: Yuri Oksuzkian
+# Updated for MDC2020 (DetectorSteps): D. Brown
+
+#include "Offline/fcl/standardServices.fcl"
+#include "Production/JobConfig/common/prolog.fcl"
+#include "Production/JobConfig/pileup/prolog.fcl"
+
+process_name: PiBeamResampler
+
+source : {
+  module_type : EmptyEvent
+  maxEvents : @nil
+}
+
+services : @local::Services.Sim
+physics: {
+  producers : {
+    @table::Common.producers
+    @table::Pileup.producers
+  }
+  filters : {
+    @table::Common.filters
+    @table::Pileup.filters
+  }
+  analyzers : {
+    @table::Common.analyzers
+  }
+  # setup paths
+  targetStopPath : [ @sequence::Pileup.beamResamplerSequence, @sequence::Common.g4Sequence, TargetPionFinder, TargetPiStopFilter, compressPVTargetPiStops]
+
+  trigger_paths: [ targetStopPath ]
+  outPath : [ TargetPiStopOutput ]
+ end_paths: [outPath]
+}
+
+outputs: {
+  TargetPiStopOutput : {
+    module_type: RootOutput
+    outputCommands:   [ "drop *_*_*_*",
+      @sequence::Pileup.SimKeptProducts,
+      "keep *_TargetPiStopFilter_*_*",
+      "keep *_compressPVTargetPiStops_*_*"
+    ]
+    SelectEvents: [targetStopPath]
+    fileName : "sim.owner.PiTargetStops.version.sequencer.art"
+  }
+}
+
+# Point Mu2eG4 to the pre-simulated data
+physics.producers.g4run.inputs: {
+  primaryType: "StepPoints"
+  primaryTag: "beamResampler:Beam"
+  inputMCTrajectories: ""
+  simStageOverride: 1
+  inputPhysVolumeMultiInfo: "beamResampler"
+  updateEventLevelVolumeInfos: {
+    input: "beamResampler:eventlevel"
+    outInstance: "eventlevel"
+  }
+}
+physics.producers.g4run.physics.noDecay     : [ 211, -211 ] # Added for Pion Infinite Lifetime for both charges
+# copy over VD hits
+physics.producers.g4run.SDConfig.preSimulatedHits:  ["beamResampler:virtualdetector"]
+#include "Production/JobConfig/common/MT.fcl"
+#include "Production/JobConfig/common/epilog.fcl"
+#include "Production/JobConfig/pileup/epilog.fcl"

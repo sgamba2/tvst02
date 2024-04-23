@@ -1,0 +1,56 @@
+# This configuration simulate cosmics with no field
+# This is analogous to S1DSStops, so it needs to be included by another FCL
+# file that specifies the generator (e.g. physics.producers.generate : @local::Cosmic.generateCRY)
+# Stefano Roberto Soleti, 2021
+
+#include "Offline/fcl/standardServices.fcl"
+#include "tvst02/JobConfig/common/prolog.fcl"
+#include "tvst02/JobConfig/primary/prolog.fcl"
+#include "tvst02/JobConfig/cosmic/prolog.fcl"
+process_name : Primary
+
+services: @local::Services.Sim
+physics: {
+  producers : {
+    @table::Common.producers
+    @table::Primary.producers
+    cosmicTimeOffset : @local::Cosmic.cosmicTimeOffset
+  }
+
+  filters : {
+    @table::Common.filters
+    @table::Primary.filters
+  }
+
+  analyzers: {
+    @table::Primary.analyzers
+  }
+
+  PrimaryPath :  [ @sequence::Common.generateSequence, cosmicTimeOffset, @sequence::Common.g4Sequence, @sequence::Primary.PrimarySequence ]
+  EndPath : @local::Primary.EndPath
+  trigger_paths : [ PrimaryPath ]
+  end_paths : [ EndPath ]
+}
+
+outputs : { PrimaryOutput : @local::Primary.PrimaryOutput }
+
+outputs.PrimaryOutput.outputCommands : [@sequence::Primary.KeptProducts, "keep mu2e::CosmicLivetime_*_*_*", "keep mu2e::GenParticles_*_*_*"]
+
+physics.producers.g4run.TrajectoryControl: @local::mu2eg4DefaultTrajectories
+physics.producers.g4run.inputs.primaryTag : cosmicTimeOffset
+physics.producers.g4run.Mu2eG4CommonCut: @local::Cosmic.Mu2eG4CommonCutCosmicNoField
+physics.producers.FindMCPrimary.PrimaryGenIds: ["CosmicCRY", "CosmicCORSIKA"]
+// since these data aren't resampled we have to apply the cosmic time offset here
+physics.producers.cosmicTimeOffset.cosmicModuleLabel : "generate"
+
+#
+# final configuration
+#
+#include "tvst02/JobConfig/common/MT.fcl"
+#include "tvst02/JobConfig/common/epilog.fcl"
+#include "tvst02/JobConfig/primary/epilog.fcl"
+#
+# need to offset the GenParticles
+
+physics.end_paths : [ EndPath ]
+services.SeedService.baseSeed : @local::Common.BaseSeed

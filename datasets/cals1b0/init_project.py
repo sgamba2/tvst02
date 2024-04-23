@@ -165,6 +165,8 @@ class Project(ProjectBase):
 # 2. input for stage2 : digit
 #------------------------------------------------------------------------------
         self.add_dataset(Dataset('sim.mu2e.cals1b0s11r0000.tvst02.art','cals1b0s11r0000','local'))
+        self.add_dataset(Dataset('sim.mu2e.cals1b0s21r0000.tvst02.art','cals1b0s21r0000','local'))
+
         return
 
 #------------------------------------------------------------------------------
@@ -180,12 +182,12 @@ class Project(ProjectBase):
         s                            = self.new_stage('s1');
         job                          = s.new_job('sim','cals1b0s00r0000');
 
-        job.fRunNumber               = 1;
+        job.fRunNumber               = 1210;
 
         job.fNInputFiles             = 1000#1000                      # number of segments
                                      
         job.fMaxInputFilesPerSegment =  1
-        job.fNEventsPerSegment       = 2000000#10000000
+        job.fNEventsPerSegment       = 200000#10000000
         job.fResample                = 'no'   # yes/no
         job.fRequestedTime           = '40h'
         job.fIfdh                    = 'xrootd'                 # ifdh/xrootd
@@ -198,16 +200,35 @@ class Project(ProjectBase):
         job.fOutputDsID              = [odsid1                       ] 
         job.fOutputFnPattern         = ['sim.mu2e.'+job.fOutputDsID[0]]
         job.fOutputFormat            = ['art'                          ]
-#
+#DIGITIZATION AND COSMIC FILTER
 
 
+        s                            = self.new_stage('s2');
+        job                          = s.new_job('sim','cals1b0s11r0000'); #'cals1b0s11r0000'
+
+        job.fNInputFiles             = -1                     # number of segments defined by s1:sim
+             
+        job.fMaxInputFilesPerSegment =  1  #un evento per macchina
+        job.fNEventsPerSegment       =  200000
+        job.fResample                = 'no'   # yes/no        # for resampling, need to define the run number again
+        job.fRequestedTime           = '40h'   
+        job.fIfdh                    = 'xrootd'               # ifdh/xrootd
+        job.fMaxMemory               = '3000MB'
+
+        odsid21                      = self.fFamilyID+'s21'+'r0000';
+
+
+        job.fOutputStream            = ['SignalOutput' ]
+        job.fOutputDsID              = [odsid21        ]
+        job.fOutputFnPattern         = ['sim.mu2e.'+job.fOutputDsID[0]]
+        job.fOutputFormat            = ['art'   ]
 
  
 #------------------------------------------------------------------------------
-# end
+# RECO
 #------------------------------------------------------------------------------
-        s                            = self.new_stage('s2');
-        job                          = s.new_job('sim','cals1b0s11r0000'); #'cals1b0s11r0000'
+        s                            = self.new_stage('s3');
+        job                          = s.new_job('sim','cals1b0s21r0000'); #'cals1b0s11r0000'
 
         job.fNInputFiles             = -1                     # number of segments defined by s1:sim
              
@@ -218,10 +239,10 @@ class Project(ProjectBase):
         job.fIfdh                    = 'xrootd'               # ifdh/xrootd
         job.fMaxMemory               = '3000MB'
 
-        odsid21                      = self.fFamilyID+'s21'+'r0000';
+        odsid31                      = self.fFamilyID+'s31'+'r0000';
 
 
         job.fOutputStream            = ['TCalStat' ]
-        job.fOutputDsID              = [odsid21        ]
+        job.fOutputDsID              = [odsid31        ]
         job.fOutputFnPattern         = ['sim.mu2e.'+job.fOutputDsID[0]]
         job.fOutputFormat            = ['art'   ]

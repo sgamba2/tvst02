@@ -1,0 +1,9 @@
+# by default, turn off histogram output
+services.TFileService.fileName : "/dev/null"
+# provide time information
+services.TimeTracker.printSummary: true
+# show results of each path
+services.scheduler.wantSummary: true
+#show summary of error logger
+services.message.destinations.log.outputStatistics : true
+

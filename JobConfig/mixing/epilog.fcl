@@ -1,0 +1,15 @@
+# mixing requires the SimEfficiency tables
+services.ProditionsService.simbookkeeper.useDb: true
+# configure the mixin efficiencies
+physics.filters.EleBeamFlashMixer.mu2e.simStageEfficiencyTags: ["EleBeamCat", "EleBeamFlashCat" ]
+physics.filters.MuBeamFlashMixer.mu2e.simStageEfficiencyTags: ["MuBeamCat", "MuBeamFlashCat" ]
+physics.filters.NeutralsFlashMixer.mu2e.simStageEfficiencyTags: ["NeutralsCat", "NeutralsFlashCat" ]
+physics.filters.MuStopPileupMixer.mu2e.simStageEfficiencyTags: ["MuBeamCat", "MuminusStopsCat", "MuStopPileupCat"]
+physics.filters.MuStopPileupMixer.mu2e.meanEventsPerPOTFactors : [ @local::Pileup.MuminusTargetStopPrescale ]
+# adjust detstep lists to include pileup
+physics.producers.makeSD.StrawGasStepModule : ""
+physics.producers.compressDigiMCs.simParticleTags : [compressDetStepMCs, @sequence::Mixing.StepMixSequence ]
+physics.producers.compressDigiMCs.caloShowerStepTags : [compressDetStepMCs, @sequence::Mixing.StepMixSequence ]
+physics.producers.CaloShowerROMaker.caloShowerStepCollection : [compressDetStepMCs, @sequence::Mixing.StepMixSequence ]
+physics.producers.CrvPhotons.crvStepModuleLabels : [ compressDetStepMCs, @sequence::Mixing.StepMixSequence ]
+physics.producers.CrvPhotons.crvStepProcessNames : [ "","","","","" ]

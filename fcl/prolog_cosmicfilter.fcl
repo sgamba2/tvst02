@@ -1,0 +1,44 @@
+# -*- mode: tcl -*-
+#------------------------------------------------------------------------------
+# this file is included by fcl/standardProducers.fcl inside the PROLOG section
+#------------------------------------------------------------------------------
+#include "Offline/CommonMC/fcl/prolog.fcl"
+BEGIN_PROLOG
+#------------------------------------------------------------------------------
+# Reject events with no hits from signal-like tracks in the detectors.
+# The filter does not look at the background hits from mixed events.
+#------------------------------------------------------------------------------
+CompressPhysicalVolumes : {
+    module_type    : CompressPhysicalVolumes
+    volumesInput   : "g4run"
+    hitInputs      : []
+    particleInputs : [ "g4run" ]
+}
+
+FilterStepPointMomentum : {
+    module_type    : FilterStepPointMomentum
+    inputs         : [ "g4run:tracker", "g4run:calorimeter"]
+    cutMomentumMin : 10. # MeV/c
+}
+
+# throw when hits are outside their sensitive volumes
+VetoIncorrectHits: {
+    module_type          : VetoIncorrectHits
+    g4ModuleLabel        : g4run
+    diagLevel            : 0
+    maxFullPrint         : 5
+    doNotThrow           : false
+    trackerStepPoints    : tracker
+    shPositionTolerance  : 0.01
+    crvStepPoints        : CRV
+    crvPositionTolerance : 0.01
+}
+CosmicFilter: {
+    module_type     : CosmicStrawDigiMCFilter
+    minNDigis        : 1
+    nHitStations : 1
+    StrawDigiMCCollection : compressDigiMCs
+
+
+}
+END_PROLOG

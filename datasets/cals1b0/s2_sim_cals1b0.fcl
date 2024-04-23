@@ -1,75 +1,93 @@
-# -*- mode:tcl -*-
-# Run StrawAndCaloDigisFromFragments module to convert artdaq::Fragment collections
-# into TRK and CAL digi collections.
-# Usage: mu2e -c DAQ/test/generateDigiFromFragment.fcl -s <input art files> -n '-1'
-#
-#
-#-----------------------------------------------------------------------------
-BEGIN_PROLOG
-  STN_COMPRESS_MCS    : "compressDigiMCs"                    # "compressRecoMCs" looks dangerous
-  STN_VDHITS_COLL_TAG : "compressDigiMCs:virtualdetector"    #
-  GEN_ID              : "particleGun"                        #    ignore GEN_ID check
-  PDG_ID              : 0                                    # 0: ignore PDG_ID
-END_PROLOG
+# -*- mode: tcl -*- 
+#------------------------------------------------------------------------------
+# use "MDC2020_perfect" calibrations
+#------------------------------------------------------------------------------
+#BEGIN_PROLOG
+#  PROCESS_NAME  @protect_ignore: S4Digi
+#  TRIGGER_PATHS @protect_ignore: [ p1 ]
+#  END_PATHS     @protect_ignore: [ e1 ]      # defined below
+#END_PROLOG 
 
-#include "Offline/fcl/minimalMessageService.fcl"
-#include "Offline/fcl/standardServices.fcl"
+##include "Offline/Filters/fcl/prolog.fcl"
+##include "Production/JobConfig/digitize/OnSpill.fcl"
+#include "tvst02/datasets/cals1b0/Digitize.fcl"
 
-#include "Offline/TrkReco/fcl/prolog.fcl"
+#process_name : @local::PROCESS_NAME
 
-#include "Stntuple/fcl/prolog.fcl"
-#include "tvst02/fcl/prolog.fcl"
-
-process_name : TCalStat
-
-source : {
-   module_type : RootInput
-   fileNames   : @nil
-   maxEvents   : -1
-}
-
-services : @local::Services.Reco
-
-physics : {
-    
-    producers : { }
-    filters   : { }
-    
-    analyzers : {
-	TCalStat : { @table::tvst02.analyzers.TCalStat
-	    trkfCollTag         : "compressDetStepMCs"    
-	    interactiveMode     : 0
-	    maxFileSize         : 2000        ## in MBytes
-	    analyzeStation      : 1
+#------------------------------------------------------------------------------
+# services 
+#------------------------------------------------------------------------------
+services : { @table::Services.SimAndReco
+    TimeTracker : {
+	printSummary : true
+	dbOutput : {
+	    filename  : ""
+	    overwrite : false
 	}
     }
+   message: @local::default_message
+} 
+#------------------------------------------------------------------------------
+# control random seeds and the output 
+#------------------------------------------------------------------------------
+services.SeedService.baseSeed         : 8
+services.SeedService.maxUniqueEngines : 100
+services.scheduler.wantSummary        : true
+# Limit the amount of "Begin processing the ... record" messages
+services.message.destinations.log.categories.ArtReport.reportEvery : 1
+services.message.destinations.log.categories.ArtReport.limit       : 10000
+services.message.destinations.log.categories.ArtReport.timespan    : 300
+services.message.destinations.log.outputStatistics                 : true
+#------------------------------------------------------------------------------
+# redefine outputs
+#------------------------------------------------------------------------------
 
-    t1 : [  ]
+#physics.end_paths     : [  "SignalOutput"  ] #@sequence::END_PATHS
+ physics.Endpaths     : [  "SignalOutput"  ]
+#------------------------------------------------------------------------------
+# redefine physics , avoid splitting 
+#------------------------------------------------------------------------------
+physics.filters.CosmicFilter.debug : 0
 
-    e1 : [ TCalStat ]
-    # e1 : []
+#physics.p1            : [ @sequence::Digitize.DigitizeSequence ]
+#physics.e1            : [ defaultOutput        ]
+#physics.trigger_paths : [ @sequence::TRIGGER_PATHS ]
 
-    trigger_paths  : [ t1 ]
-    end_paths      : [ e1 ]
+
+outputs: {
+    #defaultOutput      : { module_type : RootOutput
+	#SelectEvents   : [ @sequence::TRIGGER_PATHS ]
+     #   outputCommands : [ "keep *_*_*_*", #keep
+      #                     @sequence::Digitize.DigiProducts 
+       #                   ]
+    
+    SignalOutput : { @table::outputs.SignalOutput
+	SelectEvents : ["UntriggeredPath"]
+	#fileName : "/exp/mu2e/data/users/sgamba/dig.sgamba.cals1b0s11.tvst02.001210_00000000.art"
+	outputCommands : [ "keep *_*_*_*"]	
+    }
 }
-
-
+#------------------------------------------------------------------------------
+#  DB constants
+#------------------------------------------------------------------------------
+services.DbService.purpose : MDC2020_perfect
+services.DbService.version : 1
+# services.DbService.verbose : 2
+#------------------------------------------------------------------------------
+# common geometry file
+# output files
+#------------------------------------------------------------------------------
+#services.GeometryService.inputFile               : "CosmicRecoSara/fcl/geom_common_trackerVST.txt"
 services.GeometryService.bFieldFile: "Offline/Mu2eG4/geom/bfgeom_no_field.txt"
+physics.producers.EWMProducer.SpillType : 0
+services.DbService.purpose : MDC2020_perfect
+services.DbService.version : 1
+services.TFileService.fileName                   : "nts.sgamba.cals1b0s21.tvst02.001210_00000000.root"
+#outputs.SignalOutput.fileName                   : "/exp/mu2e/data/users/sgamba/dig.sgamba.cals1b0s21.tvst02.001210_00000002.art"
+outputs.SignalOutput.fileName                   : "dig.sgamba.cals1b0s21.tvst02.001210_00000002.art"
 
-services.TFileService.fileName                   : "nts.sgamba.cals1b0s22.tvst02.000001_00000000.root"
-services.scheduler.wantSummary                   : true
-#physics.analyzers.TCalStat.fileName                        : "sim.sgamba.cals1b0s22.tvst02.000001_00000000.hist"
-#source.fileNames : [ "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/77658650/00/00002/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000002.art", 
-#		    "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/77658650/00/00000/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000000.art",
-#		    "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/77658650/00/00001/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000001.art",
-#		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/77658650/00/00003/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000003.art", 
-#		    "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/77658650/00/00004/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000004.art",
-#		    "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/77658650/00/00005/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000005.art",
-#		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/77658650/00/00006/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000006.art", 
-#		    "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/77658650/00/00007/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000007.art",
-##		    "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/77658650/00/00008/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000008.art",
-#		     "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/77658650/00/00009/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000009.art", 
-#		    "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/77658650/00/00010/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000010.art",
-#		    "/pnfs/mu2e/scratch/users/sgamba/workflow/tvst02.cals1b0s00r0000.s1_sim/outstage/77658650/00/00011/sim.sgamba.cals1b0s11r0000.tvst02.000001_00000011.art"]
-#
+# physics.producers.FindMCPrimary                  : { @table::physics.producers.NullMCPrimary }
 
+# for now, dont use simple physics list
+# physics.producers.g4run.physics.physicsListName:ShieldingM_EMZ
+# physics.producers.g4run.physics.physicsListName  : "QGSP_BERT"

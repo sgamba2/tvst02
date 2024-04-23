@@ -1,0 +1,38 @@
+#
+# Job to translate a text file representing a proton bunch
+# intensity sequence into art format
+# Input and Output file names and a run number must be provided
+#
+#include "Offline/fcl/minimalMessageService.fcl"
+process_name: CreatePBISequence
+
+services: {
+  message : @local::default_message
+}
+
+source: {
+  module_type :  PBISequence
+  reconstitutedModuleLabel : PBISim
+  fileNames: @nil
+  runNumber : @nil
+  integratedSummary : true
+  verbosity : 1
+}
+
+physics : {
+  producers : {}
+  filters : {}
+  analyzers : {}
+  TriggerPath : []
+  EndPath : [ Output ]
+}
+
+outputs : {
+  Output : {
+    module_type : RootOutput
+    outputCommands:   [ "drop *_*_*_*",
+      "keep mu2e::ProtonBunchIntensity_*_*_*",
+      "keep mu2e::ProtonBunchIntensitySummary_*_*_*" ]
+    fileName :  @nil
+  }
+}

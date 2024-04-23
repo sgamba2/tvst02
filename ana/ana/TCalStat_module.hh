@@ -84,9 +84,6 @@ namespace mu2e {
 
     struct ChannelHist_t {
       TH1F*         nhits;
-      TH1F*         x_bias;
-
-
     };
                                    
     struct PanelHist_t {
@@ -98,6 +95,16 @@ namespace mu2e {
       TH2F*         xp_vs_yp;
       TH2F*         x_vs_y;
       TH2F*         xp_vs_yp_nh3;
+      TH1F*         x_bias;
+      TH1F*         y_bias;
+      TH1F*         x;
+      TH1F*         y;
+      TH2F*         vdrift;
+      TH2F*         vdrift_true;
+      TH1F*         x_bias_stereo_combo;
+      TH1F*         y_bias_stereo_combo;
+      TH2F*         x_bias_vs_x;
+      TH2F*         x_bias_vs_x_true;
 
       ChannelHist_t channel[kNChannels];
     };
@@ -119,6 +126,9 @@ namespace mu2e {
       TH2F*         x_vs_y_nh3_ex;
       TH2F*         x_vs_y_rec_p;
       TH2F*         x_vs_y_rec_pf;
+      TH1F*         t0;//distribuzione temporale di ogni hit
+      TH1F*         costheta;//distribuzione temporale di ogni hit
+      TH2F*         x_vs_y_rec_true;
 
       PlaneHist_t   plane[kNPlanes];
     };
@@ -151,10 +161,8 @@ namespace mu2e {
 
     struct EventData_t {      
       int         nhits;
-          int         nhits_nh3;
-
+      int         nhits_nh3;
       int         nhits_nh3_ex;
-
       PlaneData_t plane[kNPlanes];    
     } _event_data;
 
@@ -165,7 +173,12 @@ namespace mu2e {
           
     art::InputTag     _trkfCollTag;
     int               _analyzeStation;
+    art::InputTag     _digiCollTag;
+    art::InputTag     _recCollTag;
+    art::InputTag     _comboCollTag;
+
     int                _initialized;   
+
     const art::Event*  _event;
 
 
@@ -182,6 +195,7 @@ namespace mu2e {
     
     virtual void analyze         (const art::Event& e) override;
     void         analyze_panel(const art::Event& e);
+    //void         fit_line(double * m, double * sigma_m, double * q, double * sigma_q, double x[], double y[], double dx[], double dy[], int size, double m1);
 
     void         book_channel_histograms(art::TFileDirectory* Dir, int RunNumber, ChannelHist_t* Hist, int Ich);
     void         book_event_histograms  (art::TFileDirectory* Dir, int RunNumber, EventHist_t*   Hist);
